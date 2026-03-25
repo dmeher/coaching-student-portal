@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1976d2"/>
+      <stop offset="100%" stop-color="#0d47a1"/>
+    </linearGradient>
+    <linearGradient id="shine" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <!-- Background -->
+  <rect width="512" height="512" rx="96" fill="url(#bg)"/>
+  <!-- Shine overlay -->
+  <rect width="512" height="256" rx="96" fill="url(#shine)"/>
+  <!-- Mortarboard cap top -->
+  <polygon points="256,110 390,175 256,240 122,175" fill="#ffffff"/>
+  <!-- Cap brim shadow -->
+  <polygon points="256,240 390,175 390,195 256,260" fill="#bbdefb"/>
+  <polygon points="256,240 122,175 122,195 256,260" fill="#e3f2fd"/>
+  <!-- Tassel string -->
+  <rect x="386" y="175" width="6" height="60" rx="3" fill="#ffd54f"/>
+  <!-- Tassel bob -->
+  <circle cx="389" cy="240" r="10" fill="#ffd54f"/>
+  <!-- App name -->
+  <text x="256" y="330" font-family="Arial, Helvetica, sans-serif" font-size="62" font-weight="800" text-anchor="middle" fill="#ffffff" letter-spacing="2">AMLAN</text>
+  <!-- Divider -->
+  <rect x="128" y="348" width="256" height="4" rx="2" fill="#42a5f5"/>
+  <!-- Subtitle -->
+  <text x="256" y="400" font-family="Arial, Helvetica, sans-serif" font-size="36" font-weight="600" text-anchor="middle" fill="#90caf9" letter-spacing="1">COACHING</text>
+  <text x="256" y="445" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="400" text-anchor="middle" fill="#bbdefb">Fees Manager</text>
+</svg>

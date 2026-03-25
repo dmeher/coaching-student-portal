@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1976d2"/>
+      <stop offset="100%" stop-color="#0d47a1"/>
+    </linearGradient>
+  </defs>
+  <rect width="32" height="32" rx="6" fill="url(#bg)"/>
+  <!-- Mortarboard cap -->
+  <polygon points="16,6 26,11 16,16 6,11" fill="#ffffff"/>
+  <polygon points="16,16 26,11 26,15 16,20" fill="#bbdefb"/>
+  <polygon points="16,16 6,11 6,15 16,20" fill="#e3f2fd"/>
+  <!-- Tassel -->
+  <rect x="24" y="11" width="2" height="7" rx="1" fill="#ffd54f"/>
+  <circle cx="25" cy="19" r="2" fill="#ffd54f"/>
+  <!-- Letter A -->
+  <text x="16" y="30" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="800" text-anchor="middle" fill="#ffffff">A</text>
+</svg>
