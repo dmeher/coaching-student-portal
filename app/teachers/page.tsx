@@ -26,7 +26,7 @@ function AvatarPlaceholder({ name, url }: { name: string; url: string | null }) 
 
 function TeacherCard({ teacher }: { teacher: TeacherProfile }) {
   return (
-    <div className="card hover:shadow-md transition-shadow">
+    <div className="card border-emerald-100/70 bg-gradient-to-br from-white via-white to-emerald-50/60 p-5 transition-shadow hover:shadow-md">
       <div className="flex items-center gap-4">
         <AvatarPlaceholder name={teacher.display_name || 'T'} url={teacher.avatar_url} />
 
@@ -80,11 +80,16 @@ export default function TeachersPage() {
   }, [])
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900">Our Teachers</h1>
-        <p className="text-slate-500 text-sm mt-1">Meet the coaching staff at Amlan Coaching</p>
+    <div className="space-y-5 sm:space-y-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">Our Teachers</h1>
+          <p className="mt-1 text-sm text-slate-500">Meet the coaching staff at Amlan Coaching</p>
+        </div>
+        <div className="inline-flex w-fit items-center gap-2 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700">
+          <span className="h-2 w-2 rounded-full bg-emerald-500" />
+          Faculty profiles
+        </div>
       </div>
 
       {loading ? (
@@ -103,7 +108,7 @@ export default function TeachersPage() {
           ))}
         </div>
       ) : error ? (
-        <div className="card text-center text-red-600 py-10">{error}</div>
+        <div className="card py-10 text-center text-red-600">{error}</div>
       ) : teachers.length === 0 ? (
         <div className="text-center py-16 text-slate-400">
           <svg className="w-12 h-12 mx-auto mb-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -114,11 +119,20 @@ export default function TeachersPage() {
           <p className="text-sm mt-1">Profiles will appear once teachers set up their accounts</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {teachers.map((t) => (
-            <TeacherCard key={t.id} teacher={t} />
-          ))}
-        </div>
+        <>
+          <div className="mobile-stat flex items-center justify-between p-4">
+            <div>
+              <p className="text-xs uppercase tracking-[0.22em] text-slate-400">Available</p>
+              <p className="mt-1 text-lg font-semibold text-slate-900">{teachers.length} teacher{teachers.length !== 1 ? 's' : ''}</p>
+            </div>
+            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-600">Public profiles</span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {teachers.map((t) => (
+              <TeacherCard key={t.id} teacher={t} />
+            ))}
+          </div>
+        </>
       )}
     </div>
   )

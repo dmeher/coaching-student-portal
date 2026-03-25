@@ -17,6 +17,32 @@ type AttendanceRecord = {
   status_value: string | boolean | null
 }
 
+function normalizeAttendanceDate(value: unknown): string | null {
+  if (value instanceof Date) {
+    return value.toISOString().slice(0, 10)
+  }
+
+  if (typeof value !== 'string') {
+    return null
+  }
+
+  const trimmed = value.trim()
+  if (!trimmed) {
+    return null
+  }
+
+  if (/^\d{4}-\d{2}-\d{2}/.test(trimmed)) {
+    return trimmed.slice(0, 10)
+  }
+
+  const parsed = Date.parse(trimmed)
+  if (Number.isNaN(parsed)) {
+    return null
+  }
+
+  return new Date(parsed).toISOString().slice(0, 10)
+}
+
 function normalizeAttendanceStatus(value: string | boolean | null): 'present' | 'absent' | 'unknown' {
   if (typeof value === 'boolean') return value ? 'present' : 'absent'
   if (typeof value !== 'string') return 'unknown'
@@ -33,6 +59,9 @@ async function queryAttendance(
   toDate: string
 ): Promise<AttendanceRecord[]> {
   const supabase = getSupabase()
+  const toDateExclusive = new Date(`${toDate}T00:00:00.000Z`)
+  toDateExclusive.setUTCDate(toDateExclusive.getUTCDate() + 1)
+  const toDateExclusiveValue = toDateExclusive.toISOString()
 
   const attempts = [
     {
@@ -73,11 +102,17 @@ async function queryAttendance(
       .select(attempt.selectClause)
       .in('student_id', studentIds)
       .gte(attempt.dateColumn, fromDate)
-      .lte(attempt.dateColumn, toDate)
+      .lt(attempt.dateColumn, toDateExclusiveValue)
       .order(attempt.dateColumn, { ascending: false })
 
     if (!error) {
-      return (data || []).map(attempt.mapper)
+      return (data || [])
+        .map(attempt.mapper)
+        .map((row) => ({
+          ...row,
+          date_value: normalizeAttendanceDate(row.date_value) || '',
+        }))
+        .filter((row) => row.student_id && row.date_value)
     }
   }
 
@@ -146,6 +181,13 @@ export async function GET(request: NextRequest) {
 
     const studentIds = students.map((s) => s.id)
     const attendanceRows = await queryAttendance(studentIds, fromDate, toDate)
+    const attendanceRowsByStudent = new Map<string, AttendanceRecord[]>()
+
+    for (const row of attendanceRows) {
+      const rows = attendanceRowsByStudent.get(row.student_id) || []
+      rows.push(row)
+      attendanceRowsByStudent.set(row.student_id, rows)
+    }
 
     const grouped = new Map<string, { present: number; absent: number; total: number }>()
     for (const id of studentIds) {
@@ -167,8 +209,7 @@ export async function GET(request: NextRequest) {
       const percentage = agg.total > 0 ? Math.round((agg.present / agg.total) * 100) : null
 
       const attendanceByDate = new Map<string, 'present' | 'absent' | 'unknown'>()
-      for (const row of attendanceRows) {
-        if (row.student_id !== s.id) continue
+      for (const row of attendanceRowsByStudent.get(s.id) || []) {
         const normalized = normalizeAttendanceStatus(row.status_value)
         attendanceByDate.set(row.date_value, normalized)
       }

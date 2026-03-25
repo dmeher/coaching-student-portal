@@ -25,6 +25,8 @@ export const viewport: Viewport = {
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const currentYear = new Date().getUTCFullYear()
+
   return (
     <html lang="en">
       <head>
@@ -35,12 +37,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           rel="stylesheet"
         />
       </head>
-      <body className="min-h-screen bg-slate-50">
-        <Navigation />
-        <main className="max-w-5xl mx-auto px-4 py-6">{children}</main>
-        <footer className="mt-12 py-6 text-center text-sm text-slate-400 border-t border-slate-100">
-          © {new Date().getFullYear()} Amlan Coaching · Student Portal
-        </footer>
+      <body className="min-h-screen">
+        <div className="app-shell">
+          <div className="app-surface">
+            <Navigation />
+            <main className="px-3 pb-6 pt-3 sm:px-6 sm:pb-8 sm:pt-6">{children}</main>
+          </div>
+          <footer className="pb-24 pt-5 text-center text-xs text-slate-500 sm:pb-2 sm:text-sm">
+            © {currentYear} Amlan Coaching · Student Portal
+          </footer>
+        </div>
       </body>
     </html>
   )

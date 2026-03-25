@@ -14,11 +14,10 @@ function GenderBadge({ gender }: { gender: string }) {
 
 function StudentCard({ student }: { student: StudentPublic }) {
   return (
-    <div className="card hover:shadow-md transition-shadow">
+    <div className="card border-cyan-100/70 bg-gradient-to-br from-white via-white to-cyan-50/60 p-5 transition-shadow hover:shadow-md">
       <div className="flex items-start gap-4">
-        {/* Avatar placeholder */}
-        <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
-          <span className="text-blue-700 font-semibold text-lg">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-600">
+          <span className="text-lg font-semibold text-white">
             {student.name.charAt(0).toUpperCase()}
           </span>
         </div>
@@ -35,9 +34,9 @@ function StudentCard({ student }: { student: StudentPublic }) {
             </p>
           )}
 
-          <div className="mt-2 flex flex-wrap gap-3 text-sm text-slate-600">
-            <span className="flex items-center gap-1">
-              <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="mt-3 flex flex-wrap gap-2 text-sm text-slate-600">
+            <span className="inline-flex items-center gap-1 rounded-full bg-cyan-50 px-3 py-1.5 text-cyan-700">
+              <svg className="w-4 h-4 text-cyan-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                   d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
               </svg>
@@ -45,7 +44,7 @@ function StudentCard({ student }: { student: StudentPublic }) {
             </span>
 
             {student.address && (
-              <span className="flex items-center gap-1">
+              <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-3 py-1.5">
                 <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                     d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -94,17 +93,20 @@ export default function StudentsPage() {
   }, [fetchStudents])
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900">Student Directory</h1>
-        <p className="text-slate-500 text-sm mt-1">Active enrolled students at Amlan Coaching</p>
+    <div className="space-y-5 sm:space-y-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">Student Directory</h1>
+          <p className="mt-1 text-sm text-slate-500">Active enrolled students at Amlan Coaching</p>
+        </div>
+        <div className="inline-flex w-fit items-center gap-2 rounded-full bg-cyan-50 px-3 py-1.5 text-xs font-medium text-cyan-700">
+          <span className="h-2 w-2 rounded-full bg-cyan-500" />
+          Live student list
+        </div>
       </div>
 
-      {/* Filters */}
-      <div className="card">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {/* Search */}
+      <div className="mobile-pane p-4 sm:p-5">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           <div className="relative">
             <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -114,15 +116,14 @@ export default function StudentsPage() {
               placeholder="Search by name…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="touch-field w-full pl-9 pr-3"
             />
           </div>
 
-          {/* Class filter */}
           <select
             value={classFilter}
             onChange={(e) => setClassFilter(e.target.value)}
-            className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            className="touch-field w-full"
           >
             <option value="">All Classes</option>
             {classes.map((c) => (
@@ -130,11 +131,10 @@ export default function StudentsPage() {
             ))}
           </select>
 
-          {/* Gender filter */}
           <select
             value={genderFilter}
             onChange={(e) => setGenderFilter(e.target.value)}
-            className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            className="touch-field w-full"
           >
             <option value="">All Genders</option>
             <option value="male">Male</option>
@@ -144,7 +144,6 @@ export default function StudentsPage() {
         </div>
       </div>
 
-      {/* Results */}
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {Array.from({ length: 6 }).map((_, i) => (
@@ -170,7 +169,13 @@ export default function StudentsPage() {
         </div>
       ) : (
         <>
-          <p className="text-sm text-slate-500">{students.length} student{students.length !== 1 ? 's' : ''} found</p>
+          <div className="mobile-stat flex items-center justify-between p-4">
+            <div>
+              <p className="text-xs uppercase tracking-[0.22em] text-slate-400">Results</p>
+              <p className="mt-1 text-lg font-semibold text-slate-900">{students.length} student{students.length !== 1 ? 's' : ''}</p>
+            </div>
+            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-600">Filtered view</span>
+          </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {students.map((s) => (
               <StudentCard key={s.id} student={s} />

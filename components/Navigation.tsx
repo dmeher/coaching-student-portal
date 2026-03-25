@@ -3,6 +3,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useEffect, useState } from 'react'
 
 const links = [
   {
@@ -49,29 +50,38 @@ const links = [
 
 export default function Navigation() {
   const pathname = usePathname()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  const currentPath = mounted ? pathname : ''
+  const currentSection = links.find((link) => (link.href === '/' ? currentPath === '/' : currentPath.startsWith(link.href)))
 
   return (
-    <header className="bg-white border-b border-slate-100 shadow-sm sticky top-0 z-50">
-      <div className="max-w-5xl mx-auto px-4">
-        <div className="flex items-center justify-between h-14">
-          {/* Brand */}
-          <Link href="/" className="flex items-center gap-2">
-            <Image src="/logo/logo.png" alt="Amlan Coaching" width={32} height={32} className="rounded-lg" priority />
-            <span className="font-semibold text-slate-900 hidden sm:block">Amlan Coaching</span>
+    <>
+      <header className="sticky top-0 z-40 border-b border-white/70 bg-white/80 backdrop-blur-xl">
+        <div className="flex items-center justify-between gap-4 px-4 py-3 sm:px-6">
+          <Link href="/" className="flex min-w-0 items-center gap-3">
+            <Image src="/logo/logo.png" alt="Amlan Coaching" width={38} height={38} className="rounded-2xl ring-1 ring-slate-200/70" priority />
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold tracking-[0.18em] text-cyan-700">AMLAN COACHING</p>
+              <p className="truncate text-xs text-slate-500">{currentSection?.label || 'Student Portal'}</p>
+            </div>
           </Link>
 
-          {/* Nav links */}
-          <nav className="flex items-center gap-1">
+          <nav className="hidden items-center gap-1 sm:flex">
             {links.map((link) => {
-              const active = link.href === '/' ? pathname === '/' : pathname.startsWith(link.href)
+              const active = link.href === '/' ? currentPath === '/' : currentPath.startsWith(link.href)
               return (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                  className={`flex items-center gap-1.5 rounded-2xl px-3 py-2 text-sm font-medium transition-colors ${
                     active
-                      ? 'bg-blue-50 text-blue-700'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                      ? 'bg-cyan-50 text-cyan-700'
+                      : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
                   }`}
                 >
                   {link.icon}
@@ -81,7 +91,27 @@ export default function Navigation() {
             })}
           </nav>
         </div>
-      </div>
-    </header>
+      </header>
+
+      <nav className="fixed bottom-3 left-1/2 z-50 flex w-[calc(100%-24px)] max-w-sm -translate-x-1/2 items-center justify-between rounded-[28px] border border-white/70 bg-slate-950/90 px-2 py-2 shadow-[0_24px_60px_-22px_rgba(2,6,23,0.8)] backdrop-blur-xl sm:hidden">
+        {links.map((link) => {
+          const active = link.href === '/' ? currentPath === '/' : currentPath.startsWith(link.href)
+          return (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={`flex min-w-[68px] flex-col items-center justify-center gap-1 rounded-2xl px-3 py-2 text-[11px] font-medium transition ${
+                active
+                  ? 'bg-white text-slate-950 shadow-sm'
+                  : 'text-slate-300'
+              }`}
+            >
+              <span className="flex h-5 items-center">{link.icon}</span>
+              <span>{link.label}</span>
+            </Link>
+          )
+        })}
+      </nav>
+    </>
   )
 }

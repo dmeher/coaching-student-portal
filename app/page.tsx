@@ -2,73 +2,102 @@ import Link from 'next/link'
 
 export default function Home() {
   return (
-    <div className="space-y-10">
-      {/* Hero */}
-      <section className="text-center py-14">
-        <div className="w-20 h-20 mx-auto mb-6">
-          <img src="/logo/logo.png" alt="Amlan Coaching Logo" className="w-full h-full object-contain rounded-2xl shadow-lg" />
+    <div className="space-y-6 sm:space-y-8">
+      <section className="mobile-pane overflow-hidden px-5 py-6 sm:px-8 sm:py-10">
+        <div className="absolute" />
+        <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+          <div className="max-w-lg">
+            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-cyan-700">Mobile-ready portal</p>
+            <h1 className="mt-3 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">AMLAN COACHING</h1>
+            <p className="mt-3 text-sm leading-6 text-slate-600 sm:text-base">
+              A simpler student portal designed to feel like an app on mobile. Check students, browse teachers, and review attendance without fighting the layout.
+            </p>
+          </div>
+
+          <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-[28px] bg-gradient-to-br from-cyan-500 to-blue-600 p-4 shadow-[0_24px_50px_-24px_rgba(14,116,144,0.8)] sm:mx-0 sm:h-28 sm:w-28">
+            <img src="/logo/logo.png" alt="Amlan Coaching Logo" className="h-full w-full rounded-[22px] object-contain bg-white/90 p-2" />
+          </div>
         </div>
-        <h1 className="text-4xl font-bold text-slate-900 mb-3">AMLAN COACHING</h1>
-        <p className="text-lg text-slate-500 max-w-md mx-auto">
-          Welcome to the student &amp; parent portal. Browse the student directory and meet our teachers.
-        </p>
+
+        <div className="mt-6 grid grid-cols-3 gap-3 sm:mt-8">
+          <div className="mobile-stat p-3 sm:p-4">
+            <p className="text-[11px] uppercase tracking-[0.22em] text-slate-400">Access</p>
+            <p className="mt-2 text-lg font-semibold text-slate-900">24/7</p>
+          </div>
+          <div className="mobile-stat p-3 sm:p-4">
+            <p className="text-[11px] uppercase tracking-[0.22em] text-slate-400">Views</p>
+            <p className="mt-2 text-lg font-semibold text-slate-900">3</p>
+          </div>
+          <div className="mobile-stat p-3 sm:p-4">
+            <p className="text-[11px] uppercase tracking-[0.22em] text-slate-400">Mode</p>
+            <p className="mt-2 text-lg font-semibold text-slate-900">Read only</p>
+          </div>
+        </div>
       </section>
 
-      {/* Quick links */}
-      <section className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+      <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <Link
           href="/students"
-          className="card hover:shadow-md hover:border-blue-200 transition-all group cursor-pointer block"
+          className="card group block overflow-hidden border-cyan-100/70 bg-gradient-to-br from-cyan-50 via-white to-blue-50 p-5 transition-all hover:-translate-y-0.5 hover:border-cyan-200"
         >
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 bg-blue-50 rounded-xl flex items-center justify-center group-hover:bg-blue-100 transition-colors">
-              <svg className="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="flex items-center justify-between">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-600 text-white shadow-lg shadow-cyan-200/70">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                   d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
             </div>
-            <div>
-              <h2 className="text-lg font-semibold text-slate-900 group-hover:text-blue-600 transition-colors">
-                Student Directory
-              </h2>
-              <p className="text-sm text-slate-500">Browse students by name, class, and gender</p>
-            </div>
+            <span className="rounded-full bg-white/80 px-3 py-1 text-xs font-medium text-cyan-700">Browse</span>
           </div>
+          <h2 className="mt-4 text-lg font-semibold text-slate-900">Students</h2>
+          <p className="mt-2 text-sm leading-6 text-slate-600">Search enrolled students by name, class, and gender with mobile-first cards.</p>
         </Link>
 
         <Link
           href="/teachers"
-          className="card hover:shadow-md hover:border-green-200 transition-all group cursor-pointer block"
+          className="card group block overflow-hidden border-emerald-100/70 bg-gradient-to-br from-emerald-50 via-white to-teal-50 p-5 transition-all hover:-translate-y-0.5 hover:border-emerald-200"
         >
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 bg-green-50 rounded-xl flex items-center justify-center group-hover:bg-green-100 transition-colors">
-              <svg className="w-7 h-7 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="flex items-center justify-between">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-600 text-white shadow-lg shadow-emerald-200/70">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                   d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
               </svg>
             </div>
-            <div>
-              <h2 className="text-lg font-semibold text-slate-900 group-hover:text-green-600 transition-colors">
-                Our Teachers
-              </h2>
-              <p className="text-sm text-slate-500">Meet our coaching staff and their subjects</p>
-            </div>
+            <span className="rounded-full bg-white/80 px-3 py-1 text-xs font-medium text-emerald-700">Meet</span>
           </div>
+          <h2 className="mt-4 text-lg font-semibold text-slate-900">Teachers</h2>
+          <p className="mt-2 text-sm leading-6 text-slate-600">See subjects, profile details, and a cleaner card layout that scales well on phones.</p>
+        </Link>
+
+        <Link
+          href="/attendance"
+          className="card group block overflow-hidden border-amber-100/70 bg-gradient-to-br from-amber-50 via-white to-orange-50 p-5 transition-all hover:-translate-y-0.5 hover:border-amber-200 sm:col-span-2 lg:col-span-1"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500 text-white shadow-lg shadow-amber-200/70">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                  d="M8 7V3m8 4V3m-9 8h10m-11 9h12a2 2 0 002-2V7a2 2 0 00-2-2H6a2 2 0 00-2 2v11a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <span className="rounded-full bg-white/80 px-3 py-1 text-xs font-medium text-amber-700">Track</span>
+          </div>
+          <h2 className="mt-4 text-lg font-semibold text-slate-900">Attendance</h2>
+          <p className="mt-2 text-sm leading-6 text-slate-600">Check daily attendance in a mobile card view or a wide desktop grid for the full month.</p>
         </Link>
       </section>
 
-      {/* Info panel */}
-      <section className="card bg-blue-50 border-blue-100">
+      <section className="card border-cyan-100/70 bg-gradient-to-r from-cyan-50 via-white to-slate-50 p-5 sm:p-6">
         <div className="flex gap-3">
-          <svg className="w-5 h-5 text-blue-600 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="mt-0.5 h-5 w-5 shrink-0 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
               d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <div>
-            <p className="text-sm font-medium text-blue-900">Read-only access</p>
-            <p className="text-sm text-blue-700 mt-0.5">
-              This portal is for students and parents to view class details and teacher information.
-              Fee records and contact numbers are not displayed here.
+            <p className="text-sm font-semibold text-slate-900">Made for phones first</p>
+            <p className="mt-1 text-sm leading-6 text-slate-600">
+              The mobile layout now uses an app shell, bottom tab bar, larger touch targets, and stacked content blocks to keep the portal usable on smaller screens.
             </p>
           </div>
         </div>

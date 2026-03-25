@@ -10,6 +10,12 @@ function attendanceBadgeClass(percentage: number | null) {
   return 'badge bg-rose-100 text-rose-800'
 }
 
+function statusBadge(status: 'present' | 'absent' | 'unknown') {
+  if (status === 'present') return 'bg-green-100 text-green-800 border-green-200'
+  if (status === 'absent') return 'bg-rose-100 text-rose-800 border-rose-200'
+  return 'bg-slate-100 text-slate-600 border-slate-200'
+}
+
 export default function AttendancePage() {
   const [students, setStudents] = useState<StudentAttendanceSummary[]>([])
   const [classes, setClasses] = useState<string[]>([])
@@ -97,21 +103,26 @@ export default function AttendancePage() {
     return d.getDate()
   }
 
-  const statusBadge = (status: 'present' | 'absent' | 'unknown') => {
-    if (status === 'present') return 'bg-green-100 text-green-800'
-    if (status === 'absent') return 'bg-rose-100 text-rose-800'
-    return 'bg-slate-100 text-slate-600'
+  const shortDateLabel = (date: string) => {
+    const d = new Date(`${date}T00:00:00`)
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900">Student Attendance</h1>
-        <p className="text-slate-500 text-sm mt-1">Monthly attendance view from the coaching database</p>
+    <div className="space-y-5 sm:space-y-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">Student Attendance</h1>
+          <p className="mt-1 text-sm text-slate-500">Daily attendance view with mobile cards and desktop month grid</p>
+        </div>
+        <div className="inline-flex w-fit items-center gap-2 rounded-full bg-amber-50 px-3 py-1.5 text-xs font-medium text-amber-700">
+          <span className="h-2 w-2 rounded-full bg-amber-500" />
+          Daily records
+        </div>
       </div>
 
-      <div className="card">
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+      <div className="mobile-pane p-4 sm:p-5">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-4">
           <div className="relative sm:col-span-2">
             <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -121,14 +132,14 @@ export default function AttendancePage() {
               placeholder="Search student by name..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="touch-field w-full pl-9 pr-3"
             />
           </div>
 
           <select
             value={classFilter}
             onChange={(e) => setClassFilter(e.target.value)}
-            className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            className="touch-field w-full"
           >
             <option value="">All Classes</option>
             {classes.map((c) => (
@@ -140,21 +151,21 @@ export default function AttendancePage() {
             type="month"
             value={month}
             onChange={(e) => setMonth(e.target.value)}
-            className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="touch-field w-full"
           />
         </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="card">
+        <div className="mobile-stat">
           <p className="text-xs uppercase tracking-wide text-slate-400">Students</p>
           <p className="text-2xl font-bold text-slate-900 mt-1">{students.length}</p>
         </div>
-        <div className="card">
+        <div className="mobile-stat">
           <p className="text-xs uppercase tracking-wide text-slate-400">Marked Entries</p>
           <p className="text-2xl font-bold text-slate-900 mt-1">{overall.totalMarked}</p>
         </div>
-        <div className="card">
+        <div className="mobile-stat">
           <p className="text-xs uppercase tracking-wide text-slate-400">Overall Presence</p>
           <p className="text-2xl font-bold text-slate-900 mt-1">{overall.percent === null ? 'N/A' : `${overall.percent}%`}</p>
         </div>
@@ -180,7 +191,56 @@ export default function AttendancePage() {
         </div>
       ) : (
         <div className="space-y-4">
-          <div className="card overflow-x-auto">
+          <div className="space-y-4 sm:hidden">
+            {students.map((student) => {
+              const perDay = dailyMapByStudent.get(student.id) || new Map<string, 'present' | 'absent' | 'unknown'>()
+              return (
+                <div key={student.id} className="card border-amber-100/70 bg-gradient-to-br from-white via-white to-amber-50/60 p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <h3 className="text-base font-semibold text-slate-900">{student.name}</h3>
+                      <p className="mt-1 text-sm text-slate-500">{student.class_name}</p>
+                    </div>
+                    <span className={attendanceBadgeClass(student.attendance.percentage)}>
+                      {student.attendance.percentage === null ? 'N/A' : `${student.attendance.percentage}%`}
+                    </span>
+                  </div>
+
+                  <div className="mt-4 grid grid-cols-3 gap-2 text-center">
+                    <div className="rounded-2xl bg-green-50 p-3">
+                      <p className="text-[11px] uppercase tracking-[0.18em] text-green-700">Present</p>
+                      <p className="mt-1 text-lg font-semibold text-green-800">{student.attendance.present}</p>
+                    </div>
+                    <div className="rounded-2xl bg-rose-50 p-3">
+                      <p className="text-[11px] uppercase tracking-[0.18em] text-rose-700">Absent</p>
+                      <p className="mt-1 text-lg font-semibold text-rose-800">{student.attendance.absent}</p>
+                    </div>
+                    <div className="rounded-2xl bg-slate-100 p-3">
+                      <p className="text-[11px] uppercase tracking-[0.18em] text-slate-600">Total</p>
+                      <p className="mt-1 text-lg font-semibold text-slate-800">{student.attendance.total}</p>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 overflow-x-auto pb-1">
+                    <div className="flex min-w-max gap-2">
+                      {monthDates.map((d) => {
+                        const status = perDay.get(d) || 'unknown'
+                        return (
+                          <div key={`${student.id}-${d}`} className={`flex w-16 shrink-0 flex-col items-center rounded-2xl border px-2 py-2 ${statusBadge(status)}`}>
+                            <span className="text-[11px] font-medium">{shortDateLabel(d)}</span>
+                            <span className="mt-1 text-sm font-semibold">{status === 'present' ? 'P' : status === 'absent' ? 'A' : '-'}</span>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+
+          <div className="hidden sm:block">
+            <div className="card overflow-x-auto">
             <table className="min-w-full text-sm border-separate border-spacing-0">
               <thead>
                 <tr>
@@ -205,7 +265,7 @@ export default function AttendancePage() {
                         const status = perDay.get(d) || 'unknown'
                         return (
                           <td key={`${student.id}-${d}`} className="px-1 py-2 border-b border-slate-100 text-center">
-                            <span className={`inline-flex items-center justify-center w-7 h-7 rounded-full text-xs font-semibold ${statusBadge(status)}`}>
+                            <span className={`inline-flex items-center justify-center w-7 h-7 rounded-full border text-xs font-semibold ${statusBadge(status)}`}>
                               {status === 'present' ? 'P' : status === 'absent' ? 'A' : '-'}
                             </span>
                           </td>
@@ -221,9 +281,10 @@ export default function AttendancePage() {
                 })}
               </tbody>
             </table>
+            </div>
           </div>
 
-          <div className="text-xs text-slate-500 flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500">
             <span className="inline-flex items-center gap-1"><span className="inline-block w-3 h-3 rounded-full bg-green-100 border border-green-200" /> Present</span>
             <span className="inline-flex items-center gap-1"><span className="inline-block w-3 h-3 rounded-full bg-rose-100 border border-rose-200" /> Absent</span>
             <span className="inline-flex items-center gap-1"><span className="inline-block w-3 h-3 rounded-full bg-slate-100 border border-slate-200" /> Not marked</span>
