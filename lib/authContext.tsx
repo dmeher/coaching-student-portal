@@ -10,6 +10,7 @@ export interface StudentSession {
   gender: 'male' | 'female' | 'other'
   address: string | null
   status: 'active' | 'inactive'
+  teacher_id?: string | null
 }
 
 interface AuthContextType {

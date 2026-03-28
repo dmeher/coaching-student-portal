@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/authContext'
+import { usePWAInstall } from '@/lib/pwaInstallContext'
 
 const links = [
   {
@@ -41,6 +42,7 @@ export default function MobileBottomNav() {
   const pathname = usePathname()
   const router = useRouter()
   const { student, logout } = useAuth()
+  const { canInstall, isIOS, install } = usePWAInstall()
 
   function handleLogout() {
     logout()
@@ -69,6 +71,20 @@ export default function MobileBottomNav() {
 
       {student ? (
         <>
+          <Link
+            href="/notifications"
+            className={`flex flex-1 flex-col items-center justify-center gap-0.5 py-2 text-[10px] font-medium transition ${
+              pathname.startsWith('/notifications') ? 'text-cyan-400' : 'text-slate-400'
+            }`}
+          >
+            <span className={`flex h-6 w-6 items-center justify-center rounded-xl transition ${pathname.startsWith('/notifications') ? 'bg-slate-800' : ''}`}>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                  d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+              </svg>
+            </span>
+            <span>Alerts</span>
+          </Link>
           <Link
             href="/my-profile"
             className={`flex flex-1 flex-col items-center justify-center gap-0.5 py-2 text-[10px] font-medium transition ${
@@ -111,6 +127,21 @@ export default function MobileBottomNav() {
           </span>
           <span>Login</span>
         </Link>
+      )}
+      {canInstall && (
+        <button
+          onClick={isIOS ? undefined : install}
+          title={isIOS ? 'Tap Share → Add to Home Screen' : 'Install app'}
+          className="flex flex-1 flex-col items-center justify-center gap-0.5 py-2 text-[10px] font-medium text-blue-400 transition"
+        >
+          <span className="flex h-6 w-6 items-center justify-center rounded-xl bg-blue-900/50">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+          </span>
+          <span>Install</span>
+        </button>
       )}
     </nav>
   )

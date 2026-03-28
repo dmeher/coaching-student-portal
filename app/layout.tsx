@@ -3,6 +3,9 @@ import './styles/globals.css'
 import Navigation from '@/components/Navigation'
 import MobileBottomNav from '@/components/MobileBottomNav'
 import { AuthProvider } from '@/lib/authContext'
+import ServiceWorkerRegistration from '@/components/ServiceWorkerRegistration'
+import InstallPrompt from '@/components/InstallPrompt'
+import { PWAInstallProvider } from '@/lib/pwaInstallContext'
 
 export const metadata: Metadata = {
   title: 'AMLAN COACHING - Student Portal',
@@ -39,6 +42,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="min-h-screen">
         <AuthProvider>
+          <PWAInstallProvider>
+          <ServiceWorkerRegistration />
           <div className="app-shell">
             <div className="app-surface">
               <Navigation />
@@ -49,6 +54,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </footer>
           </div>
           <MobileBottomNav />
+          <InstallPrompt />
+          </PWAInstallProvider>
         </AuthProvider>
       </body>
     </html>

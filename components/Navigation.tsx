@@ -4,6 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/authContext'
+import { usePWAInstall } from '@/lib/pwaInstallContext'
 
 const links = [
   {
@@ -52,6 +53,7 @@ export default function Navigation() {
   const pathname = usePathname()
   const router = useRouter()
   const { student, logout } = useAuth()
+  const { canInstall, isIOS, install } = usePWAInstall()
   const currentPath = pathname
   const currentSection = links.find((link) => (link.href === '/' ? currentPath === '/' : currentPath.startsWith(link.href)))
 
@@ -77,8 +79,7 @@ export default function Navigation() {
               const active = link.href === '/' ? currentPath === '/' : currentPath.startsWith(link.href)
               return (
                 <Link
-                  key={link.href}
-                  href={link.href}
+                  key={link.href}                  href={link.href}
                   className={`flex items-center gap-1.5 rounded-2xl px-3 py-2 text-sm font-medium transition-colors ${
                     active
                       ? 'bg-cyan-50 text-cyan-700'
@@ -92,6 +93,20 @@ export default function Navigation() {
             })}
             {student ? (
               <>
+                <Link
+                  href="/notifications"
+                  className={`flex items-center gap-1.5 rounded-2xl px-3 py-2 text-sm font-medium transition-colors ${
+                    currentPath.startsWith('/notifications')
+                      ? 'bg-cyan-50 text-cyan-700'
+                      : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                  }`}
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                      d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                  </svg>
+                  Notifications
+                </Link>
                 <Link
                   href="/my-profile"
                   className={`flex items-center gap-1.5 rounded-2xl px-3 py-2 text-sm font-medium transition-colors ${
@@ -132,6 +147,19 @@ export default function Navigation() {
                 </svg>
                 Login
               </Link>
+            )}
+            {canInstall && (
+              <button
+                onClick={isIOS ? undefined : install}
+                title={isIOS ? 'Tap Share → Add to Home Screen in Safari' : 'Install app'}
+                className="flex items-center gap-1.5 rounded-2xl bg-blue-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                {isIOS ? 'Add to Home' : 'Install App'}
+              </button>
             )}
           </nav>
         </div>
