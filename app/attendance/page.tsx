@@ -16,6 +16,11 @@ function statusBadge(status: 'present' | 'absent' | 'unknown') {
   return 'bg-slate-100 text-slate-600 border-slate-200'
 }
 
+function getCurrentMonthValue() {
+  const currentDate = new Date()
+  return `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`
+}
+
 export default function AttendancePage() {
   const [students, setStudents] = useState<StudentAttendanceSummary[]>([])
   const [classes, setClasses] = useState<string[]>([])
@@ -23,10 +28,11 @@ export default function AttendancePage() {
   const [error, setError] = useState('')
   const [search, setSearch] = useState('')
   const [classFilter, setClassFilter] = useState('')
-  const [month, setMonth] = useState(() => {
-    const d = new Date()
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
-  })
+  const [month, setMonth] = useState('')
+
+  useEffect(() => {
+    setMonth((currentMonth) => currentMonth || getCurrentMonthValue())
+  }, [])
 
   const fetchAttendance = useCallback(async () => {
     setLoading(true)
@@ -63,6 +69,8 @@ export default function AttendancePage() {
   }, [])
 
   useEffect(() => {
+    if (!month) return
+
     const timer = setTimeout(fetchAttendance, 250)
     return () => clearTimeout(timer)
   }, [fetchAttendance])
