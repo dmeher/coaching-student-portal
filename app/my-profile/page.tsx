@@ -245,16 +245,21 @@ export default function MyProfilePage() {
             {monthDates.length === 0 ? (
               <p className="text-sm text-slate-400">Select a month to view attendance.</p>
             ) : (
-              <div className="grid grid-cols-7 gap-1">
+              <>
+              {/* Weekday headers */}
+              <div className="mb-1 grid grid-cols-7 gap-1 sm:gap-1.5">
                 {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map((d) => (
-                  <div key={d} className="text-center text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider text-slate-400 pb-0.5">
+                  <div key={d} className="py-1 text-center text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-slate-400">
                     {d}
                   </div>
                 ))}
+              </div>
+              {/* Date grid */}
+              <div className="grid grid-cols-7 gap-1 sm:gap-1.5">
                 {/* Empty cells to align first day */}
                 {Array.from(
                   { length: new Date(`${monthDates[0]}T00:00:00`).getDay() },
-                  (_, i) => <div key={`empty-${i}`} />
+                  (_, i) => <div key={`empty-${i}`} className="min-h-[50px] sm:min-h-[66px]" />
                 )}
                 {monthDates.map((date) => {
                   const sessions = dailyMap.get(date) || []
@@ -267,36 +272,37 @@ export default function MyProfilePage() {
                     <div
                       key={date}
                       title={sessions.length > 0 ? sessions.map((s) => `${s.session}: ${s.status}`).join(', ') : date}
-                      className={`flex flex-col items-center justify-center rounded-lg py-1.5 sm:py-2 text-[10px] sm:text-xs font-medium border transition ${
+                      className={`min-h-[50px] sm:min-h-[66px] rounded-xl border p-1.5 sm:p-2 transition ${
                         allPresent
-                          ? 'bg-green-50 border-green-200 text-green-800'
+                          ? 'bg-green-50 border-green-200'
                           : allAbsent
-                          ? 'bg-rose-50 border-rose-200 text-rose-700'
+                          ? 'bg-rose-50 border-rose-200'
                           : isMixed
-                          ? 'bg-amber-50 border-amber-200 text-amber-800'
-                          : 'bg-slate-50 border-slate-100 text-slate-400'
+                          ? 'bg-amber-50 border-amber-200'
+                          : 'bg-white border-slate-100'
                       } ${isToday ? 'ring-2 ring-cyan-400 ring-offset-1' : ''}`}
                     >
-                      <span>{day}</span>
-                      {sessions.length === 0 && <span className="mt-0.5 h-1.5 w-1.5 rounded-full bg-slate-200" />}
-                      {sessions.length === 1 && (
-                        <span className={`mt-0.5 text-[8px] font-bold leading-none ${sessions[0].status === 'present' ? 'text-green-600' : 'text-rose-500'}`}>
-                          {sessions[0].session === 'morning' ? 'M' : 'E'}{sessions[0].status === 'present' ? 'P' : 'A'}
-                        </span>
-                      )}
-                      {sessions.length >= 2 && (
-                        <div className="mt-0.5 flex gap-0.5">
-                          {sessions.slice(0, 2).map((s) => (
-                            <span key={s.session} className={`text-[7px] font-bold leading-none ${s.status === 'present' ? 'text-green-600' : 'text-rose-500'}`}>
-                              {s.session === 'morning' ? 'M' : 'E'}{s.status === 'present' ? 'P' : 'A'}
-                            </span>
-                          ))}
-                        </div>
-                      )}
+                      <span className={`block text-xs sm:text-sm font-bold leading-none mb-1.5 ${
+                        sessions.length > 0 ? 'text-slate-800' : 'text-slate-300'
+                      }`}>{day}</span>
+                      <div className="flex flex-col gap-0.5">
+                        {sessions.length === 0 && <span className="mt-0.5 h-1.5 w-1.5 rounded-full bg-slate-200" />}
+                        {sessions.map((s) => (
+                          <div key={s.session} className={`flex items-center gap-0.5 rounded px-1 py-0.5 text-[10px] sm:text-[11px] font-bold leading-none ${
+                            s.status === 'present' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'
+                          }`}>
+                            <span className={`text-[9px] font-black ${
+                              s.session === 'morning' ? 'text-amber-500' : 'text-indigo-500'
+                            }`}>{s.session === 'morning' ? 'M' : 'E'}</span>
+                            <span>{s.status === 'present' ? 'P' : 'A'}</span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   )
                 })}
               </div>
+              </>
             )}
             {/* Legend */}
             <div className="mt-2 sm:mt-4 flex flex-wrap gap-2 sm:gap-3 text-[10px] sm:text-xs text-slate-500">

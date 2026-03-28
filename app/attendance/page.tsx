@@ -252,19 +252,19 @@ function StudentAttendanceCalendar({ studentId, studentName }: { studentId: stri
         ) : (
           <>
             {/* Weekday headers */}
-            <div className="mb-0.5 grid grid-cols-7 gap-0.5 sm:gap-1">
+            <div className="mb-1 grid grid-cols-7 gap-1 sm:gap-1.5">
               {WEEKDAYS.map((d) => (
-                <div key={d} className="py-1 text-center text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                <div key={d} className="py-1 text-center text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-slate-400">
                   {d}
                 </div>
               ))}
             </div>
 
             {/* Calendar grid */}
-            <div className="grid grid-cols-7 gap-0.5 sm:gap-1">
+            <div className="grid grid-cols-7 gap-1 sm:gap-1.5">
               {calendarCells.map((cell) => {
                 if (!cell.date || !cell.day) {
-                  return <div key={cell.key} className="aspect-square rounded-lg sm:rounded-xl bg-slate-50/50" />
+                  return <div key={cell.key} className="min-h-[52px] sm:min-h-[70px] rounded-xl bg-slate-50/40" />
                 }
                 const sessions = dailyMap.get(cell.date) || []
                 const isToday = cell.date === todayDate
@@ -275,42 +275,32 @@ function StudentAttendanceCalendar({ studentId, studentName }: { studentId: stri
                   <div
                     key={cell.key}
                     title={sessions.length > 0 ? sessions.map((s) => `${s.session}: ${s.status}`).join(', ') : cell.date}
-                    className={`aspect-square rounded-lg sm:rounded-xl border p-0.5 sm:p-1 transition ${
+                    className={`min-h-[52px] sm:min-h-[70px] rounded-xl border p-1.5 sm:p-2 transition ${
                       allPresent
                         ? 'border-emerald-200 bg-emerald-50'
                         : allAbsent
                         ? 'border-rose-200 bg-rose-50'
                         : isMixed
                         ? 'border-amber-200 bg-amber-50'
-                        : 'border-slate-200 bg-slate-50/70'
+                        : 'border-slate-200 bg-white'
                     } ${isToday ? 'ring-2 ring-cyan-400 ring-offset-1' : ''}`}
                   >
-                    <div className="flex h-full flex-col justify-between">
-                      <span className={`text-[10px] font-semibold leading-none ${sessions.length > 0 ? 'text-slate-900' : 'text-slate-400'}`}>
-                        {cell.day}
-                      </span>
-                      {sessions.length === 1 && (
-                        <span className={`self-end rounded border px-0.5 text-[9px] font-bold leading-tight ${
-                          sessions[0].status === 'present'
-                            ? 'border-emerald-200 bg-emerald-100 text-emerald-700'
-                            : 'border-rose-200 bg-rose-100 text-rose-700'
+                    <span className={`block text-xs sm:text-sm font-bold leading-none mb-1.5 ${
+                      sessions.length > 0 ? 'text-slate-800' : 'text-slate-300'
+                    }`}>
+                      {cell.day}
+                    </span>
+                    <div className="flex flex-col gap-0.5">
+                      {sessions.map((s) => (
+                        <div key={s.session} className={`flex items-center gap-0.5 rounded px-1 py-0.5 text-[10px] sm:text-[11px] font-bold leading-none ${
+                          s.status === 'present' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'
                         }`}>
-                          {sessions[0].session === 'morning' ? 'M' : 'E'}{sessions[0].status === 'present' ? 'P' : 'A'}
-                        </span>
-                      )}
-                      {sessions.length >= 2 && (
-                        <div className="flex flex-col gap-0.5 items-end">
-                          {sessions.slice(0, 2).map((s) => (
-                            <span key={s.session} className={`rounded border px-0.5 text-[8px] font-bold leading-tight ${
-                              s.status === 'present'
-                                ? 'border-emerald-200 bg-emerald-100 text-emerald-700'
-                                : 'border-rose-200 bg-rose-100 text-rose-700'
-                            }`}>
-                              {s.session === 'morning' ? 'M' : 'E'}{s.status === 'present' ? 'P' : 'A'}
-                            </span>
-                          ))}
+                          <span className={`text-[9px] font-black ${
+                            s.session === 'morning' ? 'text-amber-500' : 'text-indigo-500'
+                          }`}>{s.session === 'morning' ? 'M' : 'E'}</span>
+                          <span>{s.status === 'present' ? 'P' : 'A'}</span>
                         </div>
-                      )}
+                      ))}
                     </div>
                   </div>
                 )
