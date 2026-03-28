@@ -179,7 +179,7 @@ function StudentAttendanceCalendar({ studentId, studentName }: { studentId: stri
   const visibleMonthPct = monthAgg?.percentage ?? null
 
   return (
-    <div className="space-y-5 sm:space-y-6">
+    <div className="space-y-3 sm:space-y-6">
       {/* Header */}
       <div>
         <h1 className="text-xl sm:text-2xl font-bold text-slate-900">My Attendance</h1>
@@ -187,38 +187,38 @@ function StudentAttendanceCalendar({ studentId, studentName }: { studentId: stri
       </div>
 
       {/* Overall stats */}
-      <div className="grid grid-cols-3 gap-3">
-        <div className="rounded-[22px] border bg-emerald-50 p-4 shadow-sm" style={{ borderColor: 'rgba(167,243,208,0.7)' }}>
-          <p className="text-[11px] font-semibold uppercase tracking-widest text-emerald-700">Present</p>
-          <p className="mt-2 text-2xl font-bold text-emerald-900">{allTimeStats.present}</p>
-          <p className="text-xs text-emerald-600">all time</p>
+      <div className="grid grid-cols-3 gap-2 sm:gap-3">
+        <div className="rounded-[18px] sm:rounded-[22px] border bg-emerald-50 p-2.5 sm:p-4 shadow-sm" style={{ borderColor: 'rgba(167,243,208,0.7)' }}>
+          <p className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-widest text-emerald-700">Present</p>
+          <p className="mt-1 sm:mt-2 text-xl sm:text-2xl font-bold text-emerald-900">{allTimeStats.present}</p>
+          <p className="text-[10px] sm:text-xs text-emerald-600">all time</p>
         </div>
-        <div className="rounded-[22px] border bg-rose-50 p-4 shadow-sm" style={{ borderColor: 'rgba(254,202,202,0.7)' }}>
-          <p className="text-[11px] font-semibold uppercase tracking-widest text-rose-700">Absent</p>
-          <p className="mt-2 text-2xl font-bold text-rose-900">{allTimeStats.absent}</p>
-          <p className="text-xs text-rose-600">all time</p>
+        <div className="rounded-[18px] sm:rounded-[22px] border bg-rose-50 p-2.5 sm:p-4 shadow-sm" style={{ borderColor: 'rgba(254,202,202,0.7)' }}>
+          <p className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-widest text-rose-700">Absent</p>
+          <p className="mt-1 sm:mt-2 text-xl sm:text-2xl font-bold text-rose-900">{allTimeStats.absent}</p>
+          <p className="text-[10px] sm:text-xs text-rose-600">all time</p>
         </div>
-        <div className="rounded-[22px] border bg-slate-50 p-4 shadow-sm" style={{ borderColor: 'rgba(226,232,240,0.7)' }}>
-          <p className="text-[11px] font-semibold uppercase tracking-widest text-slate-600">Total</p>
-          <p className="mt-2 text-2xl font-bold text-slate-900">{allTimeStats.total}</p>
-          <p className="text-xs text-slate-500">all time</p>
+        <div className="rounded-[18px] sm:rounded-[22px] border bg-slate-50 p-2.5 sm:p-4 shadow-sm" style={{ borderColor: 'rgba(226,232,240,0.7)' }}>
+          <p className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-widest text-slate-600">Total</p>
+          <p className="mt-1 sm:mt-2 text-xl sm:text-2xl font-bold text-slate-900">{allTimeStats.total}</p>
+          <p className="text-[10px] sm:text-xs text-slate-500">all time</p>
         </div>
       </div>
 
       {/* Calendar card */}
-      <div className="card border-slate-100 p-4 sm:p-5">
+      <div className="card border-slate-100 p-3 sm:p-5">
         {/* Month navigation */}
-        <div className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-3 mb-4">
+        <div className="flex items-center justify-between gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-2.5 py-2 sm:px-3 sm:py-3 mb-3 sm:mb-4">
           <button
             onClick={() => setVisibleMonth((m) => shiftMonth(m, -1))}
-            className="rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100 active:scale-95 transition"
+            className="rounded-xl border border-slate-300 bg-white px-2.5 py-1 sm:px-3 sm:py-1.5 text-xs sm:text-sm font-medium text-slate-700 hover:bg-slate-100 active:scale-95 transition"
             aria-label="Previous month"
           >
             â† Prev
           </button>
           <div className="text-center">
-            <p className="text-sm font-semibold text-slate-900">{getMonthLabel(visibleMonth)}</p>
-            <p className="mt-0.5 text-xs text-slate-500">
+            <p className="text-xs sm:text-sm font-semibold text-slate-900">{getMonthLabel(visibleMonth)}</p>
+            <p className="mt-0.5 text-[10px] sm:text-xs text-slate-500">
               {visibleMonthTotal > 0
                 ? `${visibleMonthPresent} present Â· ${visibleMonthAbsent} absent`
                 : loading ? 'Loadingâ€¦' : 'No records this month'}
@@ -227,7 +227,7 @@ function StudentAttendanceCalendar({ studentId, studentName }: { studentId: stri
           <button
             onClick={() => setVisibleMonth((m) => shiftMonth(m, 1))}
             disabled={visibleMonth >= todayMonthKey}
-            className="rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100 active:scale-95 transition disabled:opacity-40 disabled:cursor-not-allowed"
+            className="rounded-xl border border-slate-300 bg-white px-2.5 py-1 sm:px-3 sm:py-1.5 text-xs sm:text-sm font-medium text-slate-700 hover:bg-slate-100 active:scale-95 transition disabled:opacity-40 disabled:cursor-not-allowed"
             aria-label="Next month"
           >
             Next â†’
@@ -250,19 +250,19 @@ function StudentAttendanceCalendar({ studentId, studentName }: { studentId: stri
         ) : (
           <>
             {/* Weekday headers */}
-            <div className="mb-1 grid grid-cols-7 gap-1">
+            <div className="mb-0.5 grid grid-cols-7 gap-0.5 sm:gap-1">
               {WEEKDAYS.map((d) => (
-                <div key={d} className="py-1.5 text-center text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                <div key={d} className="py-1 text-center text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider text-slate-400">
                   {d}
                 </div>
               ))}
             </div>
 
             {/* Calendar grid */}
-            <div className="grid grid-cols-7 gap-1">
+            <div className="grid grid-cols-7 gap-0.5 sm:gap-1">
               {calendarCells.map((cell) => {
                 if (!cell.date || !cell.day) {
-                  return <div key={cell.key} className="aspect-square rounded-xl bg-slate-50/50" />
+                  return <div key={cell.key} className="aspect-square rounded-lg sm:rounded-xl bg-slate-50/50" />
                 }
                 const status = dailyMap.get(cell.date)
                 const isToday = cell.date === todayDate
@@ -270,7 +270,7 @@ function StudentAttendanceCalendar({ studentId, studentName }: { studentId: stri
                   <div
                     key={cell.key}
                     title={status ? `${cell.date}: ${status}` : cell.date}
-                    className={`aspect-square rounded-xl border p-1 transition ${
+                    className={`aspect-square rounded-lg sm:rounded-xl border p-0.5 sm:p-1 transition ${
                       status === 'present'
                         ? 'border-emerald-200 bg-emerald-50'
                         : status === 'absent'
@@ -279,11 +279,11 @@ function StudentAttendanceCalendar({ studentId, studentName }: { studentId: stri
                     } ${isToday ? 'ring-2 ring-cyan-400 ring-offset-1' : ''}`}
                   >
                     <div className="flex h-full flex-col justify-between">
-                      <span className={`text-[11px] font-semibold ${status ? 'text-slate-900' : 'text-slate-400'}`}>
+                      <span className={`text-[10px] font-semibold leading-none ${status ? 'text-slate-900' : 'text-slate-400'}`}>
                         {cell.day}
                       </span>
                       {status && (
-                        <span className={`self-end rounded-md border px-1 py-0.5 text-[10px] font-bold ${
+                        <span className={`self-end rounded border px-0.5 text-[9px] font-bold leading-tight ${
                           status === 'present'
                             ? 'border-emerald-200 bg-emerald-100 text-emerald-700'
                             : 'border-rose-200 bg-rose-100 text-rose-700'
@@ -299,25 +299,25 @@ function StudentAttendanceCalendar({ studentId, studentName }: { studentId: stri
 
             {/* Monthly percentage */}
             {visibleMonthTotal > 0 && (
-              <div className="mt-4 flex items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                <span className="text-sm font-medium text-slate-700">This month's attendance rate</span>
-                <span className={`text-lg font-bold ${
+              <div className="mt-2 sm:mt-4 flex items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 sm:px-4 sm:py-3">
+                <span className="text-xs sm:text-sm font-medium text-slate-700">This month's attendance rate</span>
+                <span className={`text-base sm:text-lg font-bold ${
                   visibleMonthPct === null ? 'text-slate-400'
                   : visibleMonthPct >= 90 ? 'text-green-600'
                   : visibleMonthPct >= 75 ? 'text-amber-600'
                   : 'text-rose-600'
                 }`}>
-                  {visibleMonthPct !== null ? `${visibleMonthPct}%` : 'â€”'}
+                  {visibleMonthPct !== null ? `${visibleMonthPct}%` : '—'}
                 </span>
               </div>
             )}
 
             {/* Legend */}
-            <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-slate-600">
-              <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 font-semibold text-emerald-700">P = Present</span>
-              <span className="rounded-full border border-rose-200 bg-rose-50 px-2.5 py-1 font-semibold text-rose-700">A = Absent</span>
+            <div className="mt-2 flex flex-wrap items-center gap-1.5 text-[10px] sm:text-xs text-slate-600">
+              <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 font-semibold text-emerald-700">P = Present</span>
+              <span className="rounded-full border border-rose-200 bg-rose-50 px-2 py-0.5 font-semibold text-rose-700">A = Absent</span>
               {visibleMonth === todayMonthKey && (
-                <span className="rounded-full border border-cyan-200 bg-cyan-50 px-2.5 py-1 font-semibold text-cyan-700">Current month</span>
+                <span className="rounded-full border border-cyan-200 bg-cyan-50 px-2 py-0.5 font-semibold text-cyan-700">Current month</span>
               )}
             </div>
           </>
