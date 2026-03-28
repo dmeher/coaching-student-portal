@@ -149,9 +149,11 @@ function StudentAttendanceCalendar({ studentId, studentName }: { studentId: stri
   const todayMonthKey = getCurrentMonthKey()
 
   const dailyMap = useMemo(() => {
-    const map = new Map<string, 'present' | 'absent' | 'unknown'>()
+    const map = new Map<string, Array<{ status: 'present' | 'absent' | 'unknown'; session: string }>>()
     for (const d of attendanceData?.daily || []) {
-      map.set(d.date, d.status)
+      const arr = map.get(d.date) || []
+      arr.push({ status: d.status, session: d.session || 'morning' })
+      map.set(d.date, arr)
     }
     return map
   }, [attendanceData])
@@ -264,32 +266,50 @@ function StudentAttendanceCalendar({ studentId, studentName }: { studentId: stri
                 if (!cell.date || !cell.day) {
                   return <div key={cell.key} className="aspect-square rounded-lg sm:rounded-xl bg-slate-50/50" />
                 }
-                const status = dailyMap.get(cell.date)
+                const sessions = dailyMap.get(cell.date) || []
                 const isToday = cell.date === todayDate
+                const allPresent = sessions.length > 0 && sessions.every((s) => s.status === 'present')
+                const allAbsent = sessions.length > 0 && sessions.every((s) => s.status === 'absent')
+                const isMixed = sessions.length > 1 && !allPresent && !allAbsent
                 return (
                   <div
                     key={cell.key}
-                    title={status ? `${cell.date}: ${status}` : cell.date}
+                    title={sessions.length > 0 ? sessions.map((s) => `${s.session}: ${s.status}`).join(', ') : cell.date}
                     className={`aspect-square rounded-lg sm:rounded-xl border p-0.5 sm:p-1 transition ${
-                      status === 'present'
+                      allPresent
                         ? 'border-emerald-200 bg-emerald-50'
-                        : status === 'absent'
+                        : allAbsent
                         ? 'border-rose-200 bg-rose-50'
+                        : isMixed
+                        ? 'border-amber-200 bg-amber-50'
                         : 'border-slate-200 bg-slate-50/70'
                     } ${isToday ? 'ring-2 ring-cyan-400 ring-offset-1' : ''}`}
                   >
                     <div className="flex h-full flex-col justify-between">
-                      <span className={`text-[10px] font-semibold leading-none ${status ? 'text-slate-900' : 'text-slate-400'}`}>
+                      <span className={`text-[10px] font-semibold leading-none ${sessions.length > 0 ? 'text-slate-900' : 'text-slate-400'}`}>
                         {cell.day}
                       </span>
-                      {status && (
+                      {sessions.length === 1 && (
                         <span className={`self-end rounded border px-0.5 text-[9px] font-bold leading-tight ${
-                          status === 'present'
+                          sessions[0].status === 'present'
                             ? 'border-emerald-200 bg-emerald-100 text-emerald-700'
                             : 'border-rose-200 bg-rose-100 text-rose-700'
                         }`}>
-                          {status === 'present' ? 'P' : 'A'}
+                          {sessions[0].session === 'morning' ? 'M' : 'E'}{sessions[0].status === 'present' ? 'P' : 'A'}
                         </span>
+                      )}
+                      {sessions.length >= 2 && (
+                        <div className="flex flex-col gap-0.5 items-end">
+                          {sessions.slice(0, 2).map((s) => (
+                            <span key={s.session} className={`rounded border px-0.5 text-[8px] font-bold leading-tight ${
+                              s.status === 'present'
+                                ? 'border-emerald-200 bg-emerald-100 text-emerald-700'
+                                : 'border-rose-200 bg-rose-100 text-rose-700'
+                            }`}>
+                              {s.session === 'morning' ? 'M' : 'E'}{s.status === 'present' ? 'P' : 'A'}
+                            </span>
+                          ))}
+                        </div>
                       )}
                     </div>
                   </div>
@@ -316,6 +336,7 @@ function StudentAttendanceCalendar({ studentId, studentName }: { studentId: stri
             <div className="mt-2 flex flex-wrap items-center gap-1.5 text-[10px] sm:text-xs text-slate-600">
               <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 font-semibold text-emerald-700">P = Present</span>
               <span className="rounded-full border border-rose-200 bg-rose-50 px-2 py-0.5 font-semibold text-rose-700">A = Absent</span>
+              <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 font-semibold text-amber-700">M = Morning · E = Evening</span>
               {visibleMonth === todayMonthKey && (
                 <span className="rounded-full border border-cyan-200 bg-cyan-50 px-2 py-0.5 font-semibold text-cyan-700">Current month</span>
               )}

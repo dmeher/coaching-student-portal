@@ -12,11 +12,6 @@ function attendanceBadgeClass(percentage: number | null) {
   return 'badge bg-rose-100 text-rose-800'
 }
 
-function statusDot(status: 'present' | 'absent' | 'unknown') {
-  if (status === 'present') return 'bg-green-500'
-  if (status === 'absent') return 'bg-rose-400'
-  return 'bg-slate-200'
-}
 
 function getCurrentMonthValue() {
   const d = new Date()
@@ -95,9 +90,11 @@ export default function MyProfilePage() {
   }, [month])
 
   const dailyMap = useMemo(() => {
-    const map = new Map<string, 'present' | 'absent' | 'unknown'>()
+    const map = new Map<string, Array<{ status: 'present' | 'absent' | 'unknown'; session: string }>>()
     for (const d of attendanceData?.daily || []) {
-      map.set(d.date, d.status)
+      const arr = map.get(d.date) || []
+      arr.push({ status: d.status, session: d.session || 'morning' })
+      map.set(d.date, arr)
     }
     return map
   }, [attendanceData])
@@ -260,23 +257,42 @@ export default function MyProfilePage() {
                   (_, i) => <div key={`empty-${i}`} />
                 )}
                 {monthDates.map((date) => {
-                  const status = dailyMap.get(date) ?? 'unknown'
+                  const sessions = dailyMap.get(date) || []
                   const day = Number(date.slice(-2))
                   const isToday = date === new Date().toISOString().slice(0, 10)
+                  const allPresent = sessions.length > 0 && sessions.every((s) => s.status === 'present')
+                  const allAbsent = sessions.length > 0 && sessions.every((s) => s.status === 'absent')
+                  const isMixed = sessions.length > 1 && !allPresent && !allAbsent
                   return (
                     <div
                       key={date}
-                      title={`${date}: ${status}`}
+                      title={sessions.length > 0 ? sessions.map((s) => `${s.session}: ${s.status}`).join(', ') : date}
                       className={`flex flex-col items-center justify-center rounded-lg py-1.5 sm:py-2 text-[10px] sm:text-xs font-medium border transition ${
-                        status === 'present'
+                        allPresent
                           ? 'bg-green-50 border-green-200 text-green-800'
-                          : status === 'absent'
+                          : allAbsent
                           ? 'bg-rose-50 border-rose-200 text-rose-700'
+                          : isMixed
+                          ? 'bg-amber-50 border-amber-200 text-amber-800'
                           : 'bg-slate-50 border-slate-100 text-slate-400'
                       } ${isToday ? 'ring-2 ring-cyan-400 ring-offset-1' : ''}`}
                     >
                       <span>{day}</span>
-                      <span className={`mt-0.5 h-1.5 w-1.5 rounded-full ${statusDot(status)}`} />
+                      {sessions.length === 0 && <span className="mt-0.5 h-1.5 w-1.5 rounded-full bg-slate-200" />}
+                      {sessions.length === 1 && (
+                        <span className={`mt-0.5 text-[8px] font-bold leading-none ${sessions[0].status === 'present' ? 'text-green-600' : 'text-rose-500'}`}>
+                          {sessions[0].session === 'morning' ? 'M' : 'E'}{sessions[0].status === 'present' ? 'P' : 'A'}
+                        </span>
+                      )}
+                      {sessions.length >= 2 && (
+                        <div className="mt-0.5 flex gap-0.5">
+                          {sessions.slice(0, 2).map((s) => (
+                            <span key={s.session} className={`text-[7px] font-bold leading-none ${s.status === 'present' ? 'text-green-600' : 'text-rose-500'}`}>
+                              {s.session === 'morning' ? 'M' : 'E'}{s.status === 'present' ? 'P' : 'A'}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   )
                 })}
@@ -291,8 +307,12 @@ export default function MyProfilePage() {
                 <span className="h-2.5 w-2.5 rounded-full bg-rose-400" /> Absent
               </span>
               <span className="flex items-center gap-1.5">
+                <span className="h-2.5 w-2.5 rounded-full bg-amber-400" /> Mixed
+              </span>
+              <span className="flex items-center gap-1.5">
                 <span className="h-2.5 w-2.5 rounded-full bg-slate-200" /> Not marked
               </span>
+              <span className="text-slate-400">M=Morning · E=Evening</span>
             </div>
           </div>
         )}

@@ -33,5 +33,6 @@ export interface StudentAttendanceSummary {
   daily: {
     date: string
     status: 'present' | 'absent' | 'unknown'
+    session?: string
   }[]
 }

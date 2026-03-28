@@ -15,6 +15,7 @@ type AttendanceRecord = {
   student_id: string
   date_value: string
   status_value: string | boolean | null
+  session_value?: string
 }
 
 function normalizeAttendanceDate(value: unknown): string | null {
@@ -66,12 +67,13 @@ async function queryAttendance(
   const attempts = [
     {
       table: 'attendance',
-      selectClause: 'student_id, date, status',
+      selectClause: 'student_id, date, status, session',
       dateColumn: 'date',
       mapper: (r: any): AttendanceRecord => ({
         student_id: r.student_id,
         date_value: r.date,
         status_value: r.status,
+        session_value: r.session,
       }),
     },
     {
@@ -222,15 +224,14 @@ export async function GET(request: NextRequest) {
       const agg = grouped.get(s.id) || { present: 0, absent: 0, total: 0 }
       const percentage = agg.total > 0 ? Math.round((agg.present / agg.total) * 100) : null
 
-      const attendanceByDate = new Map<string, 'present' | 'absent' | 'unknown'>()
-      for (const row of attendanceRowsByStudent.get(s.id) || []) {
-        const normalized = normalizeAttendanceStatus(row.status_value)
-        attendanceByDate.set(row.date_value, normalized)
-      }
-
-      const daily = Array.from(attendanceByDate.entries())
-        .sort((a, b) => a[0].localeCompare(b[0]))
-        .map(([date, status]) => ({ date, status }))
+      const daily = (attendanceRowsByStudent.get(s.id) || [])
+        .map((row) => ({
+          date: row.date_value,
+          status: normalizeAttendanceStatus(row.status_value),
+          session: row.session_value || 'morning',
+        }))
+        .filter((entry) => entry.status !== 'unknown')
+        .sort((a, b) => a.date.localeCompare(b.date) || a.session.localeCompare(b.session))
 
       return {
         id: s.id,
