@@ -78,6 +78,7 @@ function StudentAttendanceCalendar({ studentId, studentName }: { studentId: stri
   const [attendanceData, setAttendanceData] = useState<StudentAttendanceSummary | null>(null)
   const [allTimeStats, setAllTimeStats] = useState({ present: 0, absent: 0, total: 0 })
   const [loaded, setLoaded] = useState(false)
+  const [selectedDay, setSelectedDay] = useState<{ date: string; sessions: Array<{ status: 'present' | 'absent' | 'unknown'; session: string }> } | null>(null)
 
   const fetchMonth = useCallback(async (month: string) => {
     setLoading(true)
@@ -275,7 +276,8 @@ function StudentAttendanceCalendar({ studentId, studentName }: { studentId: stri
                   <div
                     key={cell.key}
                     title={sessions.length > 0 ? sessions.map((s) => `${s.session}: ${s.status}`).join(', ') : cell.date}
-                    className={`min-h-[52px] sm:min-h-[70px] rounded-xl border p-1.5 sm:p-2 transition ${
+                    onClick={() => setSelectedDay({ date: cell.date!, sessions })}
+                    className={`min-h-[52px] sm:min-h-[70px] cursor-pointer rounded-xl border p-1.5 sm:p-2 transition active:scale-95 ${
                       allPresent
                         ? 'border-emerald-200 bg-emerald-50'
                         : allAbsent
@@ -295,9 +297,7 @@ function StudentAttendanceCalendar({ studentId, studentName }: { studentId: stri
                         <div key={s.session} className={`flex items-center gap-0.5 rounded px-1 py-0.5 text-[10px] sm:text-[11px] font-bold leading-none ${
                           s.status === 'present' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'
                         }`}>
-                          <span className={`text-[9px] font-black ${
-                            s.session === 'morning' ? 'text-amber-500' : 'text-indigo-500'
-                          }`}>{s.session === 'morning' ? 'M' : 'E'}</span>
+                          <span className="text-[11px] leading-none">{s.session === 'morning' ? '☀️' : '🌙'}</span>
                           <span>{s.status === 'present' ? 'P' : 'A'}</span>
                         </div>
                       ))}
@@ -326,7 +326,7 @@ function StudentAttendanceCalendar({ studentId, studentName }: { studentId: stri
             <div className="mt-2 flex flex-wrap items-center gap-1.5 text-[10px] sm:text-xs text-slate-600">
               <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 font-semibold text-emerald-700">P = Present</span>
               <span className="rounded-full border border-rose-200 bg-rose-50 px-2 py-0.5 font-semibold text-rose-700">A = Absent</span>
-              <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 font-semibold text-amber-700">M = Morning · E = Evening</span>
+              <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 font-semibold text-amber-700">☀️ = Morning · 🌙 = Evening</span>
               {visibleMonth === todayMonthKey && (
                 <span className="rounded-full border border-cyan-200 bg-cyan-50 px-2 py-0.5 font-semibold text-cyan-700">Current month</span>
               )}
@@ -334,6 +334,73 @@ function StudentAttendanceCalendar({ studentId, studentName }: { studentId: stri
           </>
         )}
       </div>
+
+      {/* Day detail popup */}
+      {selectedDay && (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center sm:items-center"
+          onClick={() => setSelectedDay(null)}
+        >
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+          <div
+            className="relative w-full max-w-sm rounded-t-3xl bg-white p-5 shadow-2xl sm:rounded-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-slate-200 sm:hidden" />
+            <div className="mb-4 flex items-center justify-between">
+              <div>
+                <p className="text-base font-bold text-slate-900">
+                  {new Date(selectedDay.date + 'T00:00:00').toLocaleDateString('en-IN', {
+                    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+                  })}
+                </p>
+                <p className="mt-0.5 text-xs text-slate-500">
+                  {selectedDay.sessions.length > 0
+                    ? `${selectedDay.sessions.length} session${selectedDay.sessions.length > 1 ? 's' : ''} recorded`
+                    : 'No sessions recorded'}
+                </p>
+              </div>
+              <button
+                onClick={() => setSelectedDay(null)}
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200"
+              >
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            {selectedDay.sessions.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-center text-sm text-slate-400">
+                No attendance recorded for this day.
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {selectedDay.sessions.map((s) => (
+                  <div
+                    key={s.session}
+                    className={`flex items-center justify-between rounded-2xl border px-4 py-3 ${
+                      s.status === 'present' ? 'border-emerald-200 bg-emerald-50' : 'border-rose-200 bg-rose-50'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-2xl">{s.session === 'morning' ? '☀️' : '🌙'}</span>
+                      <div>
+                        <p className="text-sm font-semibold capitalize text-slate-800">{s.session} Session</p>
+                        <p className="text-xs text-slate-500">{s.session === 'morning' ? 'Before noon' : 'After noon'}</p>
+                      </div>
+                    </div>
+                    <span className={`rounded-full px-3 py-1 text-xs font-bold capitalize ${
+                      s.status === 'present' ? 'bg-emerald-200 text-emerald-800' : 'bg-rose-200 text-rose-800'
+                    }`}>
+                      {s.status}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
