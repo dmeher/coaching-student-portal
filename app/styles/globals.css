@@ -76,7 +76,7 @@ body::before {
     background-color: rgba(255, 255, 255, 0.9);
   }
   .touch-field {
-    @apply h-11 rounded-2xl border bg-white px-4 text-sm text-slate-700 shadow-sm outline-none transition focus:border-cyan-500 focus:ring-4 focus:ring-cyan-100;
+    @apply h-9 sm:h-11 rounded-2xl border bg-white px-3 sm:px-4 text-xs sm:text-sm text-slate-700 shadow-sm outline-none transition focus:border-cyan-500 focus:ring-4 focus:ring-cyan-100;
     border-color: rgba(226, 232, 240, 0.9);
   }
 }

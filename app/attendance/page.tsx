@@ -182,8 +182,8 @@ function StudentAttendanceCalendar({ studentId, studentName }: { studentId: stri
     <div className="space-y-5 sm:space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">My Attendance</h1>
-        <p className="mt-1 text-sm text-slate-500">Personal attendance calendar for {studentName}</p>
+        <h1 className="text-xl sm:text-2xl font-bold text-slate-900">My Attendance</h1>
+        <p className="mt-0.5 text-xs sm:text-sm text-slate-500">Personal attendance calendar for {studentName}</p>
       </div>
 
       {/* Overall stats */}

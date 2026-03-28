@@ -10,7 +10,7 @@ function AvatarPlaceholder({ name, url }: { name: string; url: string | null }) 
       <img
         src={url}
         alt={name}
-        className="w-16 h-16 rounded-full object-cover"
+        className="w-11 h-11 sm:w-16 sm:h-16 rounded-full object-cover"
         onError={(e) => {
           ;(e.target as HTMLImageElement).style.display = 'none'
         }}
@@ -18,29 +18,29 @@ function AvatarPlaceholder({ name, url }: { name: string; url: string | null }) 
     )
   }
   return (
-    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
-      <span className="text-white font-bold text-2xl">{name.charAt(0).toUpperCase()}</span>
+    <div className="w-11 h-11 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
+      <span className="text-white font-bold text-lg sm:text-2xl">{name.charAt(0).toUpperCase()}</span>
     </div>
   )
 }
 
 function TeacherCard({ teacher }: { teacher: TeacherProfile }) {
   return (
-    <div className="card border-emerald-100/70 bg-gradient-to-br from-white via-white to-emerald-50/60 p-5 transition-shadow hover:shadow-md">
-      <div className="flex items-center gap-4">
+    <div className="card border-emerald-100/70 bg-gradient-to-br from-white via-white to-emerald-50/60 p-3 sm:p-5 transition-shadow hover:shadow-md">
+      <div className="flex items-center gap-3 sm:gap-4">
         <AvatarPlaceholder name={teacher.display_name || 'T'} url={teacher.avatar_url} />
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <h3 className="text-base font-semibold text-slate-900">{teacher.display_name}</h3>
+            <h3 className="text-sm sm:text-base font-semibold text-slate-900">{teacher.display_name}</h3>
             {teacher.is_primary && (
               <span className="badge bg-amber-100 text-amber-800">Head Teacher</span>
             )}
           </div>
 
           {teacher.subject && (
-            <p className="text-sm text-slate-600 mt-0.5 flex items-center gap-1">
-              <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <p className="text-xs sm:text-sm text-slate-600 mt-0.5 flex items-center gap-1">
+              <svg className="w-3 h-3 sm:w-4 sm:h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                   d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
               </svg>
@@ -49,8 +49,8 @@ function TeacherCard({ teacher }: { teacher: TeacherProfile }) {
           )}
 
           {teacher.phone && (
-            <p className="text-sm text-slate-500 mt-0.5 flex items-center gap-1">
-              <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <p className="text-xs sm:text-sm text-slate-500 mt-0.5 flex items-center gap-1">
+              <svg className="w-3 h-3 sm:w-4 sm:h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                   d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
               </svg>
@@ -80,11 +80,11 @@ export default function TeachersPage() {
   }, [])
 
   return (
-    <div className="space-y-5 sm:space-y-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <div className="space-y-3 sm:space-y-6">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Our Teachers</h1>
-          <p className="mt-1 text-sm text-slate-500">Meet the coaching staff at Amlan Coaching</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900">Our Teachers</h1>
+          <p className="mt-0.5 text-xs sm:text-sm text-slate-500">Meet the coaching staff at Amlan Coaching</p>
         </div>
         <div className="inline-flex w-fit items-center gap-2 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700">
           <span className="h-2 w-2 rounded-full bg-emerald-500" />
@@ -120,14 +120,14 @@ export default function TeachersPage() {
         </div>
       ) : (
         <>
-          <div className="mobile-stat flex items-center justify-between p-4">
+          <div className="mobile-stat flex items-center justify-between p-3 sm:p-4">
             <div>
               <p className="text-xs uppercase tracking-[0.22em] text-slate-400">Available</p>
-              <p className="mt-1 text-lg font-semibold text-slate-900">{teachers.length} teacher{teachers.length !== 1 ? 's' : ''}</p>
+              <p className="mt-0.5 text-base sm:text-lg font-semibold text-slate-900">{teachers.length} teacher{teachers.length !== 1 ? 's' : ''}</p>
             </div>
             <span className="rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-600">Public profiles</span>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4">
             {teachers.map((t) => (
               <TeacherCard key={t.id} teacher={t} />
             ))}
