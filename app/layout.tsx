@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import './styles/globals.css'
 import Navigation from '@/components/Navigation'
+import MobileBottomNav from '@/components/MobileBottomNav'
 import { AuthProvider } from '@/lib/authContext'
 
 export const metadata: Metadata = {
@@ -47,6 +48,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               Amlan Coaching · Student Portal
             </footer>
           </div>
+          <MobileBottomNav />
         </AuthProvider>
       </body>
     </html>

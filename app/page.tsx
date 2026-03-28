@@ -1,6 +1,11 @@
+'use client'
+
 import Link from 'next/link'
+import { useAuth } from '@/lib/authContext'
 
 export default function Home() {
+  const { student } = useAuth()
+
   return (
     <div className="space-y-6 sm:space-y-8">
       <section className="mobile-pane overflow-hidden px-5 py-6 sm:px-8 sm:py-10">
@@ -70,22 +75,41 @@ export default function Home() {
           <p className="mt-2 text-sm leading-6 text-slate-600">See subjects, profile details, and a cleaner card layout that scales well on phones.</p>
         </Link>
 
-        <Link
-          href="/attendance"
-          className="card group block overflow-hidden border-amber-100/70 bg-gradient-to-br from-amber-50 via-white to-orange-50 p-5 transition-all hover:-translate-y-0.5 hover:border-amber-200 sm:col-span-2 lg:col-span-1"
-        >
-          <div className="flex items-center justify-between">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500 text-white shadow-lg shadow-amber-200/70">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                  d="M8 7V3m8 4V3m-9 8h10m-11 9h12a2 2 0 002-2V7a2 2 0 00-2-2H6a2 2 0 00-2 2v11a2 2 0 002 2z" />
-              </svg>
+        {student ? (
+          <Link
+            href="/my-profile"
+            className="card group block overflow-hidden border-amber-100/70 bg-gradient-to-br from-amber-50 via-white to-orange-50 p-5 transition-all hover:-translate-y-0.5 hover:border-amber-200 sm:col-span-2 lg:col-span-1"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500 text-white shadow-lg shadow-amber-200/70">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                    d="M8 7V3m8 4V3m-9 8h10m-11 9h12a2 2 0 002-2V7a2 2 0 00-2-2H6a2 2 0 00-2 2v11a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <span className="rounded-full bg-white/80 px-3 py-1 text-xs font-medium text-amber-700">My Record</span>
             </div>
-            <span className="rounded-full bg-white/80 px-3 py-1 text-xs font-medium text-amber-700">Track</span>
-          </div>
-          <h2 className="mt-4 text-lg font-semibold text-slate-900">Attendance</h2>
-          <p className="mt-2 text-sm leading-6 text-slate-600">Check daily attendance in a mobile card view or a wide desktop grid for the full month.</p>
-        </Link>
+            <h2 className="mt-4 text-lg font-semibold text-slate-900">My Attendance</h2>
+            <p className="mt-2 text-sm leading-6 text-slate-600">View your personal attendance record and monthly summary.</p>
+          </Link>
+        ) : (
+          <Link
+            href="/login"
+            className="card group block overflow-hidden border-amber-100/70 bg-gradient-to-br from-amber-50 via-white to-orange-50 p-5 transition-all hover:-translate-y-0.5 hover:border-amber-200 sm:col-span-2 lg:col-span-1"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500 text-white shadow-lg shadow-amber-200/70">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                    d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                </svg>
+              </div>
+              <span className="rounded-full bg-white/80 px-3 py-1 text-xs font-medium text-amber-700">Login</span>
+            </div>
+            <h2 className="mt-4 text-lg font-semibold text-slate-900">My Attendance</h2>
+            <p className="mt-2 text-sm leading-6 text-slate-600">Login with your mobile number to view your personal attendance record.</p>
+          </Link>
+        )}
       </section>
 
       <section className="card border-cyan-100/70 bg-gradient-to-r from-cyan-50 via-white to-slate-50 p-5 sm:p-6">

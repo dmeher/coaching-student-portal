@@ -58,7 +58,7 @@ body::before {
     @apply bg-gray-100 text-gray-600;
   }
   .app-shell {
-    @apply mx-auto min-h-screen w-full max-w-md px-3 pb-28 pt-3 sm:max-w-5xl sm:px-4 sm:pb-10 sm:pt-6;
+    @apply mx-auto min-h-screen w-full max-w-md px-3 pb-20 pt-3 sm:max-w-5xl sm:px-4 sm:pb-10 sm:pt-6;
   }
   .app-surface {
     @apply overflow-hidden rounded-[30px] border shadow-[0_24px_60px_-32px_rgba(15,23,42,0.45)] backdrop-blur-sm;
