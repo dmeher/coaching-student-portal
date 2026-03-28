@@ -126,6 +126,7 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get('search') || ''
     const classFilter = searchParams.get('class') || ''
     const month = searchParams.get('month') || ''
+    const studentId = searchParams.get('student_id') || ''
 
     const today = new Date()
     const monthBase = month ? new Date(`${month}-01T00:00:00`) : new Date(today.getFullYear(), today.getMonth(), 1)
@@ -151,7 +152,10 @@ export async function GET(request: NextRequest) {
       .eq('status', 'active')
       .order('name', { ascending: true })
 
-    if (search) {
+    // When a specific student_id is provided, filter to only that student
+    if (studentId) {
+      studentsQuery = studentsQuery.eq('id', studentId)
+    } else if (search) {
       studentsQuery = studentsQuery.ilike('name', `%${search}%`)
     }
 

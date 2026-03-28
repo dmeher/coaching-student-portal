@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import './styles/globals.css'
 import Navigation from '@/components/Navigation'
+import { AuthProvider } from '@/lib/authContext'
 
 export const metadata: Metadata = {
   title: 'AMLAN COACHING - Student Portal',
@@ -25,8 +26,6 @@ export const viewport: Viewport = {
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  const currentYear = new Date().getUTCFullYear()
-
   return (
     <html lang="en">
       <head>
@@ -38,15 +37,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className="min-h-screen">
-        <div className="app-shell">
-          <div className="app-surface">
-            <Navigation />
-            <main className="px-3 pb-6 pt-3 sm:px-6 sm:pb-8 sm:pt-6">{children}</main>
+        <AuthProvider>
+          <div className="app-shell">
+            <div className="app-surface">
+              <Navigation />
+              <main className="px-3 pb-6 pt-3 sm:px-6 sm:pb-8 sm:pt-6">{children}</main>
+            </div>
+            <footer className="pb-24 pt-5 text-center text-xs text-slate-500 sm:pb-2 sm:text-sm">
+              Amlan Coaching · Student Portal
+            </footer>
           </div>
-          <footer className="pb-24 pt-5 text-center text-xs text-slate-500 sm:pb-2 sm:text-sm">
-            © {currentYear} Amlan Coaching · Student Portal
-          </footer>
-        </div>
+        </AuthProvider>
       </body>
     </html>
   )
