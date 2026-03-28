@@ -1,7 +1,27 @@
 'use client'
 
+import Link from 'next/link'
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useAuth } from '@/lib/authContext'
 import type { StudentAttendanceSummary } from '@/lib/types'
+
+const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+
+function getCurrentMonthKey() {
+  const d = new Date()
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+}
+
+function shiftMonth(monthKey: string, offset: number) {
+  const [y, m] = monthKey.split('-').map(Number)
+  const d = new Date(y, m - 1 + offset, 1)
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+}
+
+function getMonthLabel(monthKey: string) {
+  const [y, m] = monthKey.split('-').map(Number)
+  return new Intl.DateTimeFormat('en-IN', { month: 'long', year: 'numeric' }).format(new Date(y, m - 1, 1))
+}
 
 function attendanceBadgeClass(percentage: number | null) {
   if (percentage === null) return 'badge bg-slate-100 text-slate-600'
@@ -16,289 +36,294 @@ function statusBadge(status: 'present' | 'absent' | 'unknown') {
   return 'bg-slate-100 text-slate-600 border-slate-200'
 }
 
-function getCurrentMonthValue() {
-  const currentDate = new Date()
-  return `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`
+export default function AttendancePage() {
+  const { student } = useAuth()
+
+  if (!student) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center px-2">
+        <div className="card w-full max-w-sm border-amber-100/70 bg-gradient-to-br from-white via-white to-amber-50/60 p-6 text-center sm:p-8">
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-[22px] bg-gradient-to-br from-amber-400 to-orange-500 shadow-lg shadow-amber-200/60">
+            <svg className="h-7 w-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                d="M8 7V3m8 4V3m-9 8h10m-11 9h12a2 2 0 002-2V7a2 2 0 00-2-2H6a2 2 0 00-2 2v11a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <h2 className="text-lg font-bold text-slate-900">View Your Attendance</h2>
+          <p className="mt-2 text-sm leading-6 text-slate-500">
+            Login with your registered mobile number to view your personal attendance calendar and records.
+          </p>
+          <Link
+            href="/login"
+            className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-amber-200/60 transition hover:opacity-90"
+          >
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+            </svg>
+            Login to Continue
+          </Link>
+        </div>
+      </div>
+    )
+  }
+
+  return <StudentAttendanceCalendar studentId={student.id} studentName={student.name} />
 }
 
-export default function AttendancePage() {
-  const [students, setStudents] = useState<StudentAttendanceSummary[]>([])
-  const [classes, setClasses] = useState<string[]>([])
+function StudentAttendanceCalendar({ studentId, studentName }: { studentId: string; studentName: string }) {
+  const [visibleMonth, setVisibleMonth] = useState(getCurrentMonthKey)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [search, setSearch] = useState('')
-  const [classFilter, setClassFilter] = useState('')
-  const [month, setMonth] = useState('')
+  const [attendanceData, setAttendanceData] = useState<StudentAttendanceSummary | null>(null)
+  const [allTimeStats, setAllTimeStats] = useState({ present: 0, absent: 0, total: 0 })
+  const [loaded, setLoaded] = useState(false)
 
-  useEffect(() => {
-    setMonth((currentMonth) => currentMonth || getCurrentMonthValue())
-  }, [])
-
-  const fetchAttendance = useCallback(async () => {
+  const fetchMonth = useCallback(async (month: string) => {
     setLoading(true)
     setError('')
-
     try {
-      const params = new URLSearchParams()
-      if (search) params.set('search', search)
-      if (classFilter) params.set('class', classFilter)
-      if (month) params.set('month', month)
-
+      const params = new URLSearchParams({ student_id: studentId, month })
       const res = await fetch(`/api/attendance?${params.toString()}`)
       const data = await res.json()
-
       if (!res.ok) {
-        setError(data.message || 'Failed to load attendance data.')
-        setStudents([])
+        setError(data.message || 'Failed to load attendance.')
+        setAttendanceData(null)
       } else {
-        setStudents(data.students || [])
+        const found: StudentAttendanceSummary | undefined = (data.students || []).find(
+          (s: StudentAttendanceSummary) => s.id === studentId
+        )
+        setAttendanceData(found || null)
+        // build overall stats on first load by summing future months not needed â€”
+        // use the fetched month stats to accumulate, but since we only have one month per call,
+        // store cumulative across calls
+        if (found) {
+          setAllTimeStats((prev) => ({
+            present: prev.present + found.attendance.present,
+            absent: prev.absent + found.attendance.absent,
+            total: prev.total + found.attendance.total,
+          }))
+        }
       }
     } catch {
       setError('Network error while loading attendance.')
-      setStudents([])
     } finally {
       setLoading(false)
     }
-  }, [search, classFilter, month])
+  }, [studentId])
+
+  // On first load: fetch current month for overall stats
+  const fetchOverallStats = useCallback(async () => {
+    if (loaded) return
+    setLoaded(true)
+    // Fetch last 3 months to get overall stats
+    const months = [0, -1, -2, -3, -4, -5].map((offset) => shiftMonth(getCurrentMonthKey(), offset))
+    let present = 0, absent = 0, total = 0
+    await Promise.all(months.map(async (m) => {
+      try {
+        const params = new URLSearchParams({ student_id: studentId, month: m })
+        const res = await fetch(`/api/attendance?${params.toString()}`)
+        const data = await res.json()
+        const found: StudentAttendanceSummary | undefined = (data.students || []).find(
+          (s: StudentAttendanceSummary) => s.id === studentId
+        )
+        if (found) {
+          present += found.attendance.present
+          absent += found.attendance.absent
+          total += found.attendance.total
+        }
+      } catch { }
+    }))
+    setAllTimeStats({ present, absent, total })
+  }, [studentId, loaded])
 
   useEffect(() => {
-    fetch('/api/classes')
-      .then((r) => r.json())
-      .then((d) => setClasses(d.classes || []))
-      .catch(() => setClasses([]))
-  }, [])
+    fetchOverallStats()
+  }, [fetchOverallStats])
 
   useEffect(() => {
-    if (!month) return
+    fetchMonth(visibleMonth)
+  }, [fetchMonth, visibleMonth])
 
-    const timer = setTimeout(fetchAttendance, 250)
-    return () => clearTimeout(timer)
-  }, [fetchAttendance])
+  const todayDate = new Date().toISOString().slice(0, 10)
+  const todayMonthKey = getCurrentMonthKey()
 
-  const overall = useMemo(() => {
-    const totalPresent = students.reduce((sum, s) => sum + s.attendance.present, 0)
-    const totalMarked = students.reduce((sum, s) => sum + s.attendance.total, 0)
-    const percent = totalMarked > 0 ? Math.round((totalPresent / totalMarked) * 100) : null
-    return { totalPresent, totalMarked, percent }
-  }, [students])
-
-  const monthDates = useMemo(() => {
-    if (!month) return [] as string[]
-    const [y, m] = month.split('-').map(Number)
-    if (!y || !m) return [] as string[]
-
-    const daysInMonth = new Date(y, m, 0).getDate()
-    return Array.from({ length: daysInMonth }, (_, i) => {
-      const day = String(i + 1).padStart(2, '0')
-      return `${month}-${day}`
-    })
-  }, [month])
-
-  const dailyMapByStudent = useMemo(() => {
-    const map = new Map<string, Map<string, 'present' | 'absent' | 'unknown'>>()
-    for (const s of students) {
-      const perDay = new Map<string, 'present' | 'absent' | 'unknown'>()
-      for (const d of s.daily || []) {
-        perDay.set(d.date, d.status)
-      }
-      map.set(s.id, perDay)
+  const dailyMap = useMemo(() => {
+    const map = new Map<string, 'present' | 'absent' | 'unknown'>()
+    for (const d of attendanceData?.daily || []) {
+      map.set(d.date, d.status)
     }
     return map
-  }, [students])
+  }, [attendanceData])
 
-  const dateLabel = (date: string) => {
-    const d = new Date(`${date}T00:00:00`)
-    return d.getDate()
-  }
+  // Build calendar cells
+  const calendarCells = useMemo(() => {
+    const [y, m] = visibleMonth.split('-').map(Number)
+    const daysInMonth = new Date(y, m, 0).getDate()
+    const firstDow = new Date(y, m - 1, 1).getDay()
+    const cells: { key: string; date?: string; day?: number }[] = []
+    for (let i = 0; i < firstDow; i++) cells.push({ key: `e-s-${i}` })
+    for (let d = 1; d <= daysInMonth; d++) {
+      const date = `${visibleMonth}-${String(d).padStart(2, '0')}`
+      cells.push({ key: date, date, day: d })
+    }
+    const trailing = (7 - (cells.length % 7)) % 7
+    for (let i = 0; i < trailing; i++) cells.push({ key: `e-t-${i}` })
+    return cells
+  }, [visibleMonth])
 
-  const shortDateLabel = (date: string) => {
-    const d = new Date(`${date}T00:00:00`)
-    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-  }
+  const monthAgg = attendanceData?.attendance
+  const visibleMonthPresent = monthAgg?.present ?? 0
+  const visibleMonthAbsent = monthAgg?.absent ?? 0
+  const visibleMonthTotal = monthAgg?.total ?? 0
+  const visibleMonthPct = monthAgg?.percentage ?? null
 
   return (
     <div className="space-y-5 sm:space-y-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">Student Attendance</h1>
-          <p className="mt-1 text-sm text-slate-500">Daily attendance view with mobile cards and desktop month grid</p>
+      {/* Header */}
+      <div>
+        <h1 className="text-2xl font-bold text-slate-900">My Attendance</h1>
+        <p className="mt-1 text-sm text-slate-500">Personal attendance calendar for {studentName}</p>
+      </div>
+
+      {/* Overall stats */}
+      <div className="grid grid-cols-3 gap-3">
+        <div className="rounded-[22px] border bg-emerald-50 p-4 shadow-sm" style={{ borderColor: 'rgba(167,243,208,0.7)' }}>
+          <p className="text-[11px] font-semibold uppercase tracking-widest text-emerald-700">Present</p>
+          <p className="mt-2 text-2xl font-bold text-emerald-900">{allTimeStats.present}</p>
+          <p className="text-xs text-emerald-600">all time</p>
         </div>
-        <div className="inline-flex w-fit items-center gap-2 rounded-full bg-amber-50 px-3 py-1.5 text-xs font-medium text-amber-700">
-          <span className="h-2 w-2 rounded-full bg-amber-500" />
-          Daily records
+        <div className="rounded-[22px] border bg-rose-50 p-4 shadow-sm" style={{ borderColor: 'rgba(254,202,202,0.7)' }}>
+          <p className="text-[11px] font-semibold uppercase tracking-widest text-rose-700">Absent</p>
+          <p className="mt-2 text-2xl font-bold text-rose-900">{allTimeStats.absent}</p>
+          <p className="text-xs text-rose-600">all time</p>
+        </div>
+        <div className="rounded-[22px] border bg-slate-50 p-4 shadow-sm" style={{ borderColor: 'rgba(226,232,240,0.7)' }}>
+          <p className="text-[11px] font-semibold uppercase tracking-widest text-slate-600">Total</p>
+          <p className="mt-2 text-2xl font-bold text-slate-900">{allTimeStats.total}</p>
+          <p className="text-xs text-slate-500">all time</p>
         </div>
       </div>
 
-      <div className="mobile-pane p-4 sm:p-5">
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-4">
-          <div className="relative sm:col-span-2">
-            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-            <input
-              type="text"
-              placeholder="Search student by name..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="touch-field w-full pl-9 pr-3"
-            />
-          </div>
-
-          <select
-            value={classFilter}
-            onChange={(e) => setClassFilter(e.target.value)}
-            className="touch-field w-full"
+      {/* Calendar card */}
+      <div className="card border-slate-100 p-4 sm:p-5">
+        {/* Month navigation */}
+        <div className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-3 mb-4">
+          <button
+            onClick={() => setVisibleMonth((m) => shiftMonth(m, -1))}
+            className="rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100 active:scale-95 transition"
+            aria-label="Previous month"
           >
-            <option value="">All Classes</option>
-            {classes.map((c) => (
-              <option key={c} value={c}>{c}</option>
-            ))}
-          </select>
+            â† Prev
+          </button>
+          <div className="text-center">
+            <p className="text-sm font-semibold text-slate-900">{getMonthLabel(visibleMonth)}</p>
+            <p className="mt-0.5 text-xs text-slate-500">
+              {visibleMonthTotal > 0
+                ? `${visibleMonthPresent} present Â· ${visibleMonthAbsent} absent`
+                : loading ? 'Loadingâ€¦' : 'No records this month'}
+            </p>
+          </div>
+          <button
+            onClick={() => setVisibleMonth((m) => shiftMonth(m, 1))}
+            disabled={visibleMonth >= todayMonthKey}
+            className="rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100 active:scale-95 transition disabled:opacity-40 disabled:cursor-not-allowed"
+            aria-label="Next month"
+          >
+            Next â†’
+          </button>
+        </div>
 
-          <input
-            type="month"
-            value={month}
-            onChange={(e) => setMonth(e.target.value)}
-            className="touch-field w-full"
-          />
-        </div>
-      </div>
+        {error && (
+          <div className="mb-4 flex items-start gap-2 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+            <svg className="mt-0.5 h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            {error}
+          </div>
+        )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="mobile-stat">
-          <p className="text-xs uppercase tracking-wide text-slate-400">Students</p>
-          <p className="text-2xl font-bold text-slate-900 mt-1">{students.length}</p>
-        </div>
-        <div className="mobile-stat">
-          <p className="text-xs uppercase tracking-wide text-slate-400">Marked Entries</p>
-          <p className="text-2xl font-bold text-slate-900 mt-1">{overall.totalMarked}</p>
-        </div>
-        <div className="mobile-stat">
-          <p className="text-xs uppercase tracking-wide text-slate-400">Overall Presence</p>
-          <p className="text-2xl font-bold text-slate-900 mt-1">{overall.percent === null ? 'N/A' : `${overall.percent}%`}</p>
-        </div>
-      </div>
-
-      {error && (
-        <div className="card border-rose-200 bg-rose-50 text-rose-800">
-          <p className="font-medium">Could not load attendance</p>
-          <p className="text-sm mt-1">{error}</p>
-        </div>
-      )}
-
-      {loading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="card animate-pulse h-24" />
-          ))}
-        </div>
-      ) : students.length === 0 ? (
-        <div className="text-center py-16 text-slate-400">
-          <p className="font-medium">No attendance records found</p>
-          <p className="text-sm mt-1">Try changing month or filters</p>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          <div className="space-y-4 sm:hidden">
-            {students.map((student) => {
-              const perDay = dailyMapByStudent.get(student.id) || new Map<string, 'present' | 'absent' | 'unknown'>()
-              return (
-                <div key={student.id} className="card border-amber-100/70 bg-gradient-to-br from-white via-white to-amber-50/60 p-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <h3 className="text-base font-semibold text-slate-900">{student.name}</h3>
-                      <p className="mt-1 text-sm text-slate-500">{student.class_name}</p>
-                    </div>
-                    <span className={attendanceBadgeClass(student.attendance.percentage)}>
-                      {student.attendance.percentage === null ? 'N/A' : `${student.attendance.percentage}%`}
-                    </span>
-                  </div>
-
-                  <div className="mt-4 grid grid-cols-3 gap-2 text-center">
-                    <div className="rounded-2xl bg-green-50 p-3">
-                      <p className="text-[11px] uppercase tracking-[0.18em] text-green-700">Present</p>
-                      <p className="mt-1 text-lg font-semibold text-green-800">{student.attendance.present}</p>
-                    </div>
-                    <div className="rounded-2xl bg-rose-50 p-3">
-                      <p className="text-[11px] uppercase tracking-[0.18em] text-rose-700">Absent</p>
-                      <p className="mt-1 text-lg font-semibold text-rose-800">{student.attendance.absent}</p>
-                    </div>
-                    <div className="rounded-2xl bg-slate-100 p-3">
-                      <p className="text-[11px] uppercase tracking-[0.18em] text-slate-600">Total</p>
-                      <p className="mt-1 text-lg font-semibold text-slate-800">{student.attendance.total}</p>
-                    </div>
-                  </div>
-
-                  <div className="mt-4 overflow-x-auto pb-1">
-                    <div className="flex min-w-max gap-2">
-                      {monthDates.map((d) => {
-                        const status = perDay.get(d) || 'unknown'
-                        return (
-                          <div key={`${student.id}-${d}`} className={`flex w-16 shrink-0 flex-col items-center rounded-2xl border px-2 py-2 ${statusBadge(status)}`}>
-                            <span className="text-[11px] font-medium">{shortDateLabel(d)}</span>
-                            <span className="mt-1 text-sm font-semibold">{status === 'present' ? 'P' : status === 'absent' ? 'A' : '-'}</span>
-                          </div>
-                        )
-                      })}
-                    </div>
-                  </div>
+        {loading ? (
+          <div className="flex items-center justify-center py-12">
+            <div className="h-7 w-7 animate-spin rounded-full border-4 border-cyan-200 border-t-cyan-600" />
+          </div>
+        ) : (
+          <>
+            {/* Weekday headers */}
+            <div className="mb-1 grid grid-cols-7 gap-1">
+              {WEEKDAYS.map((d) => (
+                <div key={d} className="py-1.5 text-center text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                  {d}
                 </div>
-              )
-            })}
-          </div>
-
-          <div className="hidden sm:block">
-            <div className="card overflow-x-auto">
-            <table className="min-w-full text-sm border-separate border-spacing-0">
-              <thead>
-                <tr>
-                  <th className="sticky left-0 bg-white text-left px-3 py-2 border-b border-slate-200 font-semibold">Student</th>
-                  <th className="sticky left-[160px] bg-white text-left px-3 py-2 border-b border-slate-200 font-semibold">Class</th>
-                  {monthDates.map((d) => (
-                    <th key={d} className="px-2 py-2 border-b border-slate-200 text-center font-semibold text-slate-600 min-w-[42px]">
-                      {dateLabel(d)}
-                    </th>
-                  ))}
-                  <th className="px-3 py-2 border-b border-slate-200 text-center font-semibold">%</th>
-                </tr>
-              </thead>
-              <tbody>
-                {students.map((student) => {
-                  const perDay = dailyMapByStudent.get(student.id) || new Map<string, 'present' | 'absent' | 'unknown'>()
-                  return (
-                    <tr key={student.id}>
-                      <td className="sticky left-0 bg-white px-3 py-2 border-b border-slate-100 font-medium text-slate-800 whitespace-nowrap">{student.name}</td>
-                      <td className="sticky left-[160px] bg-white px-3 py-2 border-b border-slate-100 text-slate-500 whitespace-nowrap">{student.class_name}</td>
-                      {monthDates.map((d) => {
-                        const status = perDay.get(d) || 'unknown'
-                        return (
-                          <td key={`${student.id}-${d}`} className="px-1 py-2 border-b border-slate-100 text-center">
-                            <span className={`inline-flex items-center justify-center w-7 h-7 rounded-full border text-xs font-semibold ${statusBadge(status)}`}>
-                              {status === 'present' ? 'P' : status === 'absent' ? 'A' : '-'}
-                            </span>
-                          </td>
-                        )
-                      })}
-                      <td className="px-3 py-2 border-b border-slate-100 text-center">
-                        <span className={attendanceBadgeClass(student.attendance.percentage)}>
-                          {student.attendance.percentage === null ? 'N/A' : `${student.attendance.percentage}%`}
-                        </span>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
+              ))}
             </div>
-          </div>
 
-          <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500">
-            <span className="inline-flex items-center gap-1"><span className="inline-block w-3 h-3 rounded-full bg-green-100 border border-green-200" /> Present</span>
-            <span className="inline-flex items-center gap-1"><span className="inline-block w-3 h-3 rounded-full bg-rose-100 border border-rose-200" /> Absent</span>
-            <span className="inline-flex items-center gap-1"><span className="inline-block w-3 h-3 rounded-full bg-slate-100 border border-slate-200" /> Not marked</span>
-          </div>
-        </div>
-      )}
+            {/* Calendar grid */}
+            <div className="grid grid-cols-7 gap-1">
+              {calendarCells.map((cell) => {
+                if (!cell.date || !cell.day) {
+                  return <div key={cell.key} className="aspect-square rounded-xl bg-slate-50/50" />
+                }
+                const status = dailyMap.get(cell.date)
+                const isToday = cell.date === todayDate
+                return (
+                  <div
+                    key={cell.key}
+                    title={status ? `${cell.date}: ${status}` : cell.date}
+                    className={`aspect-square rounded-xl border p-1 transition ${
+                      status === 'present'
+                        ? 'border-emerald-200 bg-emerald-50'
+                        : status === 'absent'
+                        ? 'border-rose-200 bg-rose-50'
+                        : 'border-slate-200 bg-slate-50/70'
+                    } ${isToday ? 'ring-2 ring-cyan-400 ring-offset-1' : ''}`}
+                  >
+                    <div className="flex h-full flex-col justify-between">
+                      <span className={`text-[11px] font-semibold ${status ? 'text-slate-900' : 'text-slate-400'}`}>
+                        {cell.day}
+                      </span>
+                      {status && (
+                        <span className={`self-end rounded-md border px-1 py-0.5 text-[10px] font-bold ${
+                          status === 'present'
+                            ? 'border-emerald-200 bg-emerald-100 text-emerald-700'
+                            : 'border-rose-200 bg-rose-100 text-rose-700'
+                        }`}>
+                          {status === 'present' ? 'P' : 'A'}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+
+            {/* Monthly percentage */}
+            {visibleMonthTotal > 0 && (
+              <div className="mt-4 flex items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+                <span className="text-sm font-medium text-slate-700">This month's attendance rate</span>
+                <span className={`text-lg font-bold ${
+                  visibleMonthPct === null ? 'text-slate-400'
+                  : visibleMonthPct >= 90 ? 'text-green-600'
+                  : visibleMonthPct >= 75 ? 'text-amber-600'
+                  : 'text-rose-600'
+                }`}>
+                  {visibleMonthPct !== null ? `${visibleMonthPct}%` : 'â€”'}
+                </span>
+              </div>
+            )}
+
+            {/* Legend */}
+            <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-slate-600">
+              <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 font-semibold text-emerald-700">P = Present</span>
+              <span className="rounded-full border border-rose-200 bg-rose-50 px-2.5 py-1 font-semibold text-rose-700">A = Absent</span>
+              {visibleMonth === todayMonthKey && (
+                <span className="rounded-full border border-cyan-200 bg-cyan-50 px-2.5 py-1 font-semibold text-cyan-700">Current month</span>
+              )}
+            </div>
+          </>
+        )}
+      </div>
     </div>
   )
 }
+

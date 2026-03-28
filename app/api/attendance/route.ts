@@ -66,16 +66,16 @@ async function queryAttendance(
   const attempts = [
     {
       table: 'attendance',
-      selectClause: 'student_id, attendance_date, status',
-      dateColumn: 'attendance_date',
+      selectClause: 'student_id, date, status',
+      dateColumn: 'date',
       mapper: (r: any): AttendanceRecord => ({
         student_id: r.student_id,
-        date_value: r.attendance_date,
+        date_value: r.date,
         status_value: r.status,
       }),
     },
     {
-      table: 'student_attendance',
+      table: 'attendance',
       selectClause: 'student_id, attendance_date, status',
       dateColumn: 'attendance_date',
       mapper: (r: any): AttendanceRecord => ({
@@ -91,6 +91,16 @@ async function queryAttendance(
       mapper: (r: any): AttendanceRecord => ({
         student_id: r.student_id,
         date_value: r.date,
+        status_value: r.status,
+      }),
+    },
+    {
+      table: 'student_attendance',
+      selectClause: 'student_id, attendance_date, status',
+      dateColumn: 'attendance_date',
+      mapper: (r: any): AttendanceRecord => ({
+        student_id: r.student_id,
+        date_value: r.attendance_date,
         status_value: r.status,
       }),
     },
