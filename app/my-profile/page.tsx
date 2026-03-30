@@ -3,7 +3,15 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/authContext'
-import type { StudentAttendanceSummary } from '@/lib/types'
+import type { StudentAttendanceSummary, FeeEntry, FeePayment } from '@/lib/types'
+
+function formatCurrency(amount: number) {
+  return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0 }).format(amount)
+}
+
+function formatDate(dateStr: string) {
+  return new Date(dateStr + 'T00:00:00').toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+}
 
 function attendanceBadgeClass(percentage: number | null) {
   if (percentage === null) return 'badge bg-slate-100 text-slate-600'
@@ -40,6 +48,12 @@ export default function MyProfilePage() {
   const [attendanceData, setAttendanceData] = useState<StudentAttendanceSummary | null>(null)
   const [selectedDay, setSelectedDay] = useState<{ date: string; sessions: Array<{ status: 'present' | 'absent' | 'unknown'; session: string }> } | null>(null)
 
+  // Fees & Payments state
+  const [fees, setFees] = useState<FeeEntry[]>([])
+  const [feesLoading, setFeesLoading] = useState(false)
+  const [feesError, setFeesError] = useState('')
+  const [selectedFee, setSelectedFee] = useState<FeeEntry | null>(null)
+
   // Redirect to login if not authenticated
   useEffect(() => {
     if (student === null) {
@@ -52,6 +66,29 @@ export default function MyProfilePage() {
       return () => clearTimeout(timer)
     }
   }, [student, router])
+
+  const fetchFees = useCallback(async () => {
+    if (!student) return
+    setFeesLoading(true)
+    setFeesError('')
+    try {
+      const res = await fetch(`/api/fees?student_id=${student.id}`)
+      const data = await res.json()
+      if (!res.ok) {
+        setFeesError(data.message || 'Failed to load fees.')
+      } else {
+        setFees(data.fees || [])
+      }
+    } catch {
+      setFeesError('Network error while loading fees.')
+    } finally {
+      setFeesLoading(false)
+    }
+  }, [student])
+
+  useEffect(() => {
+    if (student) fetchFees()
+  }, [fetchFees])
 
   const fetchAttendance = useCallback(async () => {
     if (!student) return
@@ -323,6 +360,204 @@ export default function MyProfilePage() {
           </div>
         )}
       </div>
+
+      {/* ── Fees & Dues Section ── */}
+      <div className="space-y-2 sm:space-y-4">
+        <div>
+          <h2 className="text-sm sm:text-lg font-bold text-slate-900">My Fees & Dues</h2>
+          <p className="text-xs sm:text-sm text-slate-500">Your fee records and payment history</p>
+        </div>
+
+        {feesLoading && (
+          <div className="flex items-center justify-center py-8">
+            <div className="h-7 w-7 animate-spin rounded-full border-4 border-violet-200 border-t-violet-600" />
+          </div>
+        )}
+
+        {!feesLoading && feesError && (
+          <div className="flex items-start gap-2 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+            <svg className="mt-0.5 h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            {feesError}
+          </div>
+        )}
+
+        {!feesLoading && !feesError && fees.length === 0 && (
+          <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-8 text-center text-sm text-slate-400">
+            No fee records found.
+          </div>
+        )}
+
+        {!feesLoading && fees.length > 0 && (() => {
+          const totalBilled = fees.reduce((s, f) => s + f.amount, 0)
+          const totalPaid = fees.reduce((s, f) => s + f.payments.reduce((ps, p) => ps + p.amount, 0), 0)
+          const outstanding = Math.max(0, totalBilled - totalPaid)
+          const pendingCount = fees.filter((f) => f.status !== 'paid').length
+          return (
+            <>
+              {/* Summary stats */}
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                <div className="rounded-2xl border border-white/70 bg-gradient-to-br from-rose-500/15 to-red-500/10 p-3 sm:p-4">
+                  <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">Outstanding</p>
+                  <p className="mt-1 text-base sm:text-lg font-extrabold text-rose-700">{formatCurrency(outstanding)}</p>
+                </div>
+                <div className="rounded-2xl border border-white/70 bg-gradient-to-br from-emerald-500/15 to-green-500/10 p-3 sm:p-4">
+                  <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">Total Paid</p>
+                  <p className="mt-1 text-base sm:text-lg font-extrabold text-emerald-700">{formatCurrency(totalPaid)}</p>
+                </div>
+                <div className="rounded-2xl border border-white/70 bg-gradient-to-br from-violet-500/15 to-indigo-500/10 p-3 sm:p-4">
+                  <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">Total Billed</p>
+                  <p className="mt-1 text-base sm:text-lg font-extrabold text-slate-900">{formatCurrency(totalBilled)}</p>
+                </div>
+                <div className="rounded-2xl border border-white/70 bg-gradient-to-br from-amber-500/15 to-orange-500/10 p-3 sm:p-4">
+                  <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">Pending</p>
+                  <p className="mt-1 text-base sm:text-lg font-extrabold text-amber-700">{pendingCount}</p>
+                </div>
+              </div>
+
+              {/* Fee list */}
+              <div className="flex flex-col gap-2">
+                {fees.map((fee) => {
+                  const paid = fee.payments.reduce((s, p) => s + p.amount, 0)
+                  const due = Math.max(0, fee.amount - paid)
+                  const statusColor =
+                    fee.status === 'paid'
+                      ? 'border-emerald-200 bg-emerald-50'
+                      : fee.status === 'partial'
+                      ? 'border-amber-200 bg-amber-50'
+                      : 'border-rose-200 bg-white'
+                  const badge =
+                    fee.status === 'paid'
+                      ? 'bg-emerald-100 text-emerald-700'
+                      : fee.status === 'partial'
+                      ? 'bg-amber-100 text-amber-700'
+                      : 'bg-rose-100 text-rose-700'
+                  return (
+                    <button
+                      key={fee.id}
+                      type="button"
+                      onClick={() => setSelectedFee(fee)}
+                      className={`w-full text-left rounded-xl border p-3 sm:p-4 transition hover:opacity-90 active:scale-[0.99] ${statusColor}`}
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="min-w-0">
+                          <div className="flex flex-wrap items-center gap-1.5">
+                            <span className="text-sm font-semibold text-slate-900">
+                              {fee.fee_type === 'arrear' ? 'Arrear' : 'Monthly Fee'}
+                            </span>
+                            {fee.description && (
+                              <span className="text-xs text-slate-500 italic truncate">— {fee.description}</span>
+                            )}
+                          </div>
+                          <p className="mt-0.5 text-xs text-slate-500">Due: {formatDate(fee.due_date)}</p>
+                        </div>
+                        <div className="shrink-0 text-right">
+                          <p className="text-sm font-bold text-slate-900">{formatCurrency(fee.amount)}</p>
+                          <span className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold capitalize ${badge}`}>
+                            {fee.status}
+                          </span>
+                        </div>
+                      </div>
+                      {fee.status !== 'paid' && (
+                        <div className="mt-2 flex items-center justify-between text-xs text-slate-500">
+                          <span>Paid: <span className="font-medium text-emerald-700">{formatCurrency(paid)}</span></span>
+                          <span>Remaining: <span className="font-medium text-rose-600">{formatCurrency(due)}</span></span>
+                        </div>
+                      )}
+                      {fee.payments.length > 0 && (
+                        <p className="mt-1.5 text-[11px] font-semibold text-violet-600">
+                          {fee.payments.length} payment{fee.payments.length > 1 ? 's' : ''} recorded · tap to view
+                        </p>
+                      )}
+                    </button>
+                  )
+                })}
+              </div>
+            </>
+          )
+        })()}
+      </div>
+
+      {/* Fee detail popup */}
+      {selectedFee && (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center sm:items-center"
+          onClick={() => setSelectedFee(null)}
+        >
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+          <div
+            className="relative w-full max-w-sm rounded-t-3xl bg-white p-5 shadow-2xl sm:rounded-2xl max-h-[85vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-slate-200 sm:hidden" />
+            <div className="mb-4 flex items-start justify-between gap-3">
+              <div>
+                <p className="text-base font-bold text-slate-900">
+                  {selectedFee.fee_type === 'arrear' ? 'Arrear' : 'Monthly Fee'}
+                  {selectedFee.description ? ` — ${selectedFee.description}` : ''}
+                </p>
+                <p className="mt-0.5 text-xs text-slate-500">Due: {formatDate(selectedFee.due_date)}</p>
+                <div className="mt-1.5 flex items-center gap-2">
+                  <span className="text-sm font-bold text-slate-900">{formatCurrency(selectedFee.amount)}</span>
+                  <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold capitalize ${
+                    selectedFee.status === 'paid' ? 'bg-emerald-100 text-emerald-700'
+                    : selectedFee.status === 'partial' ? 'bg-amber-100 text-amber-700'
+                    : 'bg-rose-100 text-rose-700'
+                  }`}>{selectedFee.status}</span>
+                </div>
+              </div>
+              <button
+                onClick={() => setSelectedFee(null)}
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200"
+              >
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {selectedFee.payments.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-center text-sm text-slate-400">
+                No payments recorded yet for this fee.
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <p className="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-1">Payment History</p>
+                {selectedFee.payments.map((pay) => (
+                  <div key={pay.id} className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3">
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm font-bold text-emerald-800">{formatCurrency(pay.amount)}</p>
+                      <p className="text-xs text-slate-500">{formatDate(pay.payment_date)}</p>
+                    </div>
+                    {pay.notes && (
+                      <p className="mt-1 text-xs text-slate-500 italic">{pay.notes}</p>
+                    )}
+                    {pay.collected_by && (
+                      <p className="mt-0.5 text-xs text-slate-400">Collected by: {pay.collected_by}</p>
+                    )}
+                  </div>
+                ))}
+                {/* Total paid for this fee */}
+                <div className="mt-2 flex items-center justify-between rounded-xl bg-slate-100 px-4 py-2.5 text-sm font-semibold text-slate-700">
+                  <span>Total Paid</span>
+                  <span className="text-emerald-700">
+                    {formatCurrency(selectedFee.payments.reduce((s, p) => s + p.amount, 0))}
+                  </span>
+                </div>
+                {selectedFee.status !== 'paid' && (
+                  <div className="flex items-center justify-between rounded-xl bg-rose-50 px-4 py-2.5 text-sm font-semibold border border-rose-100">
+                    <span className="text-slate-700">Remaining</span>
+                    <span className="text-rose-600">
+                      {formatCurrency(Math.max(0, selectedFee.amount - selectedFee.payments.reduce((s, p) => s + p.amount, 0)))}
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Day detail popup */}
       {selectedDay && (

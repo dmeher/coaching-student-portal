@@ -27,6 +27,26 @@ export interface Holiday {
   description?: string | null;
 }
 
+export interface FeePayment {
+  id: string
+  amount: number
+  notes: string | null
+  payment_date: string
+  collected_by: string | null
+  created_at: string
+}
+
+export interface FeeEntry {
+  id: string
+  amount: number
+  due_date: string
+  status: 'pending' | 'partial' | 'paid'
+  fee_type?: 'monthly' | 'arrear'
+  description?: string | null
+  created_at: string
+  payments: FeePayment[]
+}
+
 export interface StudentAttendanceSummary {
   id: string
   name: string
