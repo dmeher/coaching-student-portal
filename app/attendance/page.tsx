@@ -279,11 +279,11 @@ function StudentAttendanceCalendar({ studentId, studentName }: { studentId: stri
                     onClick={() => setSelectedDay({ date: cell.date!, sessions })}
                     className={`min-h-[52px] sm:min-h-[70px] cursor-pointer rounded-xl border p-1.5 sm:p-2 transition active:scale-95 ${
                       allPresent
-                        ? 'border-emerald-200 bg-emerald-50'
+                        ? 'border-emerald-200 bg-white'
                         : allAbsent
-                        ? 'border-rose-200 bg-rose-50'
+                        ? 'border-rose-200 bg-white'
                         : isMixed
-                        ? 'border-amber-200 bg-amber-50'
+                        ? 'border-amber-200 bg-white'
                         : 'border-slate-200 bg-white'
                     } ${isToday ? 'ring-2 ring-cyan-400 ring-offset-1' : ''}`}
                   >
