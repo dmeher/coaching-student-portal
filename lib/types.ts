@@ -19,6 +19,14 @@ export interface TeacherProfile {
   is_primary: boolean
 }
 
+// Holiday Types
+export interface Holiday {
+  id: string;
+  date: string;
+  title: string;
+  description?: string | null;
+}
+
 export interface StudentAttendanceSummary {
   id: string
   name: string
