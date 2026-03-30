@@ -118,7 +118,7 @@ export default function HolidaysPage() {
       {teacherId && (
         <>
           {/* Calendar */}
-          <div className="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200/80">
+          <div className="overflow-hidden rounded-2xl bg-gradient-to-b from-violet-50/70 to-blue-50/30 shadow-sm ring-1 ring-violet-100/80">
             {/* Month nav */}
             <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
               <button
@@ -145,7 +145,7 @@ export default function HolidaysPage() {
             </div>
 
             {/* Weekday headers */}
-            <div className="grid grid-cols-7 border-b border-slate-100 bg-slate-50">
+            <div className="grid grid-cols-7 border-b border-violet-100 bg-violet-100/60">
               {WEEKDAYS.map(w => (
                 <div key={w} className="py-1.5 text-center text-[10px] font-semibold uppercase tracking-wide text-slate-400">
                   {w}
@@ -156,7 +156,7 @@ export default function HolidaysPage() {
             {/* Days grid */}
             <div className="grid grid-cols-7">
               {cells.map((day, idx) => {
-                if (!day) return <div key={`empty-${idx}`} className="h-12 border-b border-r border-slate-50 last:border-r-0" />
+                if (!day) return <div key={`empty-${idx}`} className="h-12 border-b border-r border-violet-100/50 last:border-r-0" />
                 const dateStr = padDate(year, month, day)
                 const isToday = dateStr === today
                 const isHoliday = holidaySet.has(dateStr)
@@ -167,8 +167,8 @@ export default function HolidaysPage() {
                   <div
                     key={dateStr}
                     onClick={() => setSelectedDate(isSelected ? null : dateStr)}
-                    className={`relative flex h-12 flex-col items-center justify-start border-b border-r border-slate-50 pt-1.5 last:border-r-0 cursor-pointer transition
-                      ${isHoliday ? 'bg-rose-50 hover:bg-rose-100/70' : 'hover:bg-blue-50/60'}
+                    className={`relative flex h-12 flex-col items-center justify-start border-b border-r border-violet-100/50 pt-1.5 last:border-r-0 cursor-pointer transition
+                      ${isHoliday ? 'bg-rose-100/70 hover:bg-rose-100' : 'hover:bg-violet-100/50'}
                       ${isSelected ? 'ring-2 ring-inset ring-blue-400' : ''}
                     `}
                   >
