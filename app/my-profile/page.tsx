@@ -506,7 +506,7 @@ export default function MyProfilePage() {
                             allPresent ? 'bg-green-50 border-green-200'
                             : allAbsent ? 'bg-rose-50 border-rose-200'
                             : isMixed ? 'bg-amber-50 border-amber-200'
-                            : 'bg-cyan-50/50 border-cyan-100'
+                            : 'bg-white border-slate-200'
                           } ${isToday ? 'ring-2 ring-cyan-400 ring-offset-1' : ''}`}
                         >
                           <span className={`block text-xs sm:text-sm font-bold leading-none mb-1.5 ${
