@@ -427,19 +427,19 @@ export default function MyProfilePage() {
 
           {agg && (
             <div className="grid grid-cols-4 gap-1.5 sm:gap-3">
-              <div className="mobile-stat p-2 sm:p-4">
+              <div className="mobile-stat border-2 border-emerald-200 p-2 sm:p-4">
                 <p className="text-[10px] uppercase tracking-[0.18em] text-slate-400">Present</p>
                 <p className="mt-1 sm:mt-2 text-base sm:text-xl font-bold text-green-600">{agg.present}</p>
               </div>
-              <div className="mobile-stat p-2 sm:p-4">
+              <div className="mobile-stat border-2 border-rose-200 p-2 sm:p-4">
                 <p className="text-[10px] uppercase tracking-[0.18em] text-slate-400">Absent</p>
                 <p className="mt-1 sm:mt-2 text-base sm:text-xl font-bold text-rose-500">{agg.absent}</p>
               </div>
-              <div className="mobile-stat p-2 sm:p-4">
+              <div className="mobile-stat border-2 border-slate-200 p-2 sm:p-4">
                 <p className="text-[10px] uppercase tracking-[0.18em] text-slate-400">Total</p>
                 <p className="mt-1 sm:mt-2 text-base sm:text-xl font-bold text-slate-700">{agg.total}</p>
               </div>
-              <div className="mobile-stat p-2 sm:p-4">
+              <div className="mobile-stat border-2 border-slate-200 p-2 sm:p-4">
                 <p className="text-[10px] uppercase tracking-[0.18em] text-slate-400">Rate</p>
                 <p className={`mt-1 sm:mt-2 text-base sm:text-xl font-bold ${
                   percentage === null ? 'text-slate-400' :

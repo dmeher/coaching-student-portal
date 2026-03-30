@@ -191,17 +191,17 @@ function StudentAttendanceCalendar({ studentId, studentName }: { studentId: stri
 
       {/* Overall stats */}
       <div className="grid grid-cols-3 gap-2 sm:gap-3">
-        <div className="rounded-[18px] sm:rounded-[22px] border bg-emerald-50 p-2.5 sm:p-4 shadow-sm" style={{ borderColor: 'rgba(167,243,208,0.7)' }}>
+        <div className="rounded-xl border-2 border-emerald-200 bg-emerald-50 p-2.5 sm:p-4 shadow-sm">
           <p className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-widest text-emerald-700">Present</p>
           <p className="mt-1 sm:mt-2 text-xl sm:text-2xl font-bold text-emerald-900">{allTimeStats.present}</p>
           <p className="text-[10px] sm:text-xs text-emerald-600">all time</p>
         </div>
-        <div className="rounded-[18px] sm:rounded-[22px] border bg-rose-50 p-2.5 sm:p-4 shadow-sm" style={{ borderColor: 'rgba(254,202,202,0.7)' }}>
+        <div className="rounded-xl border-2 border-rose-200 bg-rose-50 p-2.5 sm:p-4 shadow-sm">
           <p className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-widest text-rose-700">Absent</p>
           <p className="mt-1 sm:mt-2 text-xl sm:text-2xl font-bold text-rose-900">{allTimeStats.absent}</p>
           <p className="text-[10px] sm:text-xs text-rose-600">all time</p>
         </div>
-        <div className="rounded-[18px] sm:rounded-[22px] border bg-slate-50 p-2.5 sm:p-4 shadow-sm" style={{ borderColor: 'rgba(226,232,240,0.7)' }}>
+        <div className="rounded-xl border-2 border-slate-200 bg-slate-50 p-2.5 sm:p-4 shadow-sm">
           <p className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-widest text-slate-600">Total</p>
           <p className="mt-1 sm:mt-2 text-xl sm:text-2xl font-bold text-slate-900">{allTimeStats.total}</p>
           <p className="text-[10px] sm:text-xs text-slate-500">all time</p>
@@ -309,7 +309,7 @@ function StudentAttendanceCalendar({ studentId, studentName }: { studentId: stri
 
             {/* Monthly percentage */}
             {visibleMonthTotal > 0 && (
-              <div className="mt-2 sm:mt-4 flex items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 sm:px-4 sm:py-3">
+              <div className="mt-2 sm:mt-4 flex items-center justify-between rounded-xl border-2 border-slate-200 bg-slate-50 px-3 py-2 sm:px-4 sm:py-3">
                 <span className="text-xs sm:text-sm font-medium text-slate-700">This month's attendance rate</span>
                 <span className={`text-base sm:text-lg font-bold ${
                   visibleMonthPct === null ? 'text-slate-400'
