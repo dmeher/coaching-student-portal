@@ -9,6 +9,7 @@ export interface StudentSession {
   class_name: string
   gender: 'male' | 'female' | 'other'
   address: string | null
+  mobile_no: string | null
   status: 'active' | 'inactive'
   teacher_id?: string | null
 }

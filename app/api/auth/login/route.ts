@@ -23,6 +23,7 @@ export async function POST(request: NextRequest) {
         gender,
         address,
         status,
+        mobile_no,
         teacher_id,
         class_fees:class_id (
           class_name
@@ -55,6 +56,7 @@ export async function POST(request: NextRequest) {
           class_name: s.class_fees?.class_name || 'N/A',
           gender: s.gender,
           address: s.address || null,
+          mobile_no: s.mobile_no || null,
           status: s.status,
           teacher_id: s.teacher_id || null,
         },

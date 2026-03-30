@@ -1,10 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import { useAuth } from '@/lib/authContext'
 
 export default function Home() {
-  const { student } = useAuth()
 
   return (
     <div className="space-y-4 sm:space-y-8">
@@ -76,23 +74,6 @@ export default function Home() {
         </Link>
 
         <Link
-          href="/attendance"
-          className="card group block overflow-hidden border-violet-100/70 bg-gradient-to-br from-violet-50 via-white to-purple-50 p-4 sm:p-5 transition-all hover:-translate-y-0.5 hover:border-violet-200"
-        >
-          <div className="flex items-center justify-between">
-            <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl sm:rounded-2xl bg-violet-600 text-white shadow-lg shadow-violet-200/70">
-              <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                  d="M8 7V3m8 4V3m-9 8h10m-11 9h12a2 2 0 002-2V7a2 2 0 00-2-2H6a2 2 0 00-2 2v11a2 2 0 002 2z" />
-              </svg>
-            </div>
-            <span className="rounded-full bg-white/80 px-3 py-1 text-xs font-medium text-violet-700">Track</span>
-          </div>
-          <h2 className="mt-3 sm:mt-4 text-sm sm:text-lg font-semibold text-slate-900">Attendance</h2>
-          <p className="mt-1 sm:mt-2 text-xs sm:text-sm leading-5 sm:leading-6 text-slate-600">View your monthly attendance calendar and records.</p>
-        </Link>
-
-        <Link
           href="/holidays"
           className="card group block overflow-hidden border-rose-100/70 bg-gradient-to-br from-rose-50 via-white to-pink-50 p-4 sm:p-5 transition-all hover:-translate-y-0.5 hover:border-rose-200"
         >
@@ -108,42 +89,6 @@ export default function Home() {
           <h2 className="mt-3 sm:mt-4 text-sm sm:text-lg font-semibold text-slate-900">Holidays</h2>
           <p className="mt-1 sm:mt-2 text-xs sm:text-sm leading-5 sm:leading-6 text-slate-600">Browse scheduled holidays and breaks for the coaching.</p>
         </Link>
-
-        {student ? (
-          <Link
-            href="/my-profile"
-            className="card group block overflow-hidden border-amber-100/70 bg-gradient-to-br from-amber-50 via-white to-orange-50 p-4 sm:p-5 transition-all hover:-translate-y-0.5 hover:border-amber-200 sm:col-span-2 lg:col-span-1"
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl sm:rounded-2xl bg-amber-500 text-white shadow-lg shadow-amber-200/70">
-                <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                    d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <span className="rounded-full bg-white/80 px-3 py-1 text-xs font-medium text-amber-700">My Profile</span>
-            </div>
-            <h2 className="mt-3 sm:mt-4 text-sm sm:text-lg font-semibold text-slate-900">My Profile</h2>
-            <p className="mt-1 sm:mt-2 text-xs sm:text-sm leading-5 sm:leading-6 text-slate-600">View your profile details and personal information.</p>
-          </Link>
-        ) : (
-          <Link
-            href="/login"
-            className="card group block overflow-hidden border-amber-100/70 bg-gradient-to-br from-amber-50 via-white to-orange-50 p-4 sm:p-5 transition-all hover:-translate-y-0.5 hover:border-amber-200 sm:col-span-2 lg:col-span-1"
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl sm:rounded-2xl bg-amber-500 text-white shadow-lg shadow-amber-200/70">
-                <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                    d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
-                </svg>
-              </div>
-              <span className="rounded-full bg-white/80 px-3 py-1 text-xs font-medium text-amber-700">Login</span>
-            </div>
-            <h2 className="mt-3 sm:mt-4 text-sm sm:text-lg font-semibold text-slate-900">Login</h2>
-            <p className="mt-1 sm:mt-2 text-xs sm:text-sm leading-5 sm:leading-6 text-slate-600">Login with your mobile number to access your profile and attendance.</p>
-          </Link>
-        )}
       </section>
 
     </div>

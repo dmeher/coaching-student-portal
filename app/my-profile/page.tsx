@@ -28,7 +28,7 @@ export default function MyProfilePage() {
   const [error, setError] = useState('')
   const [attendanceData, setAttendanceData] = useState<StudentAttendanceSummary | null>(null)
   const [selectedDay, setSelectedDay] = useState<{ date: string; sessions: Array<{ status: 'present' | 'absent' | 'unknown'; session: string }> } | null>(null)
-  const [activeSection, setActiveSection] = useState<'overview' | 'attendance' | 'fees'>('overview')
+  const [activeSection, setActiveSection] = useState<'overview' | 'attendance' | 'fees' | 'details'>('overview')
 
   // Fees & Payments state
   const [fees, setFees] = useState<FeeEntry[]>([])
@@ -172,6 +172,16 @@ export default function MyProfilePage() {
         </svg>
       ),
     },
+    {
+      id: 'details' as const,
+      label: 'Details',
+      icon: (
+        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+        </svg>
+      ),
+    },
   ]
 
   return (
@@ -303,6 +313,49 @@ export default function MyProfilePage() {
             ) : (
               <p className="text-xs text-slate-400">No attendance data for this month.</p>
             )}
+          </div>
+
+          {/* Details snapshot */}
+          <div
+            className="rounded-2xl border border-emerald-100 bg-gradient-to-br from-emerald-50 to-teal-50/60 p-4 cursor-pointer hover:shadow-md transition"
+            onClick={() => setActiveSection('details')}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-600">
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                </div>
+                <span className="text-sm font-bold text-slate-800">My Details</span>
+              </div>
+              <div className="flex items-center gap-1 text-xs text-emerald-600 font-semibold">
+                View all
+                <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/80 px-3 py-1 text-xs font-medium text-slate-700 ring-1 ring-slate-200/60">
+                <svg className="h-3 w-3 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                {student.name}
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/80 px-3 py-1 text-xs font-medium text-slate-700 ring-1 ring-slate-200/60 capitalize">
+                {student.gender}
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/80 px-3 py-1 text-xs font-medium text-slate-700 ring-1 ring-slate-200/60">
+                {student.class_name}
+              </span>
+              <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ring-1 ${
+                student.status === 'active' ? 'bg-emerald-100 text-emerald-700 ring-emerald-200' : 'bg-rose-100 text-rose-700 ring-rose-200'
+              } capitalize`}>
+                {student.status}
+              </span>
+            </div>
           </div>
 
           {/* Fees snapshot */}
@@ -593,6 +646,115 @@ export default function MyProfilePage() {
               </div>
             </>
           )}
+        </div>
+      )}
+
+      {/* ── DETAILS TAB ── */}
+      {activeSection === 'details' && (
+        <div className="space-y-3 sm:space-y-4">
+          <div>
+            <h2 className="text-sm sm:text-base font-bold text-slate-900">My Details</h2>
+            <p className="text-xs text-slate-500">Your full profile information</p>
+          </div>
+
+          {/* Profile card */}
+          <div className="overflow-hidden rounded-2xl border border-emerald-100 bg-gradient-to-br from-emerald-50/60 to-teal-50/40">
+            {/* Avatar banner */}
+            <div className="flex items-center gap-4 bg-gradient-to-r from-emerald-500 to-teal-500 px-5 py-5">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/25 ring-2 ring-white/40 shadow-inner">
+                <span className="text-2xl font-extrabold text-white">{student.name.charAt(0).toUpperCase()}</span>
+              </div>
+              <div className="min-w-0">
+                <p className="text-lg font-extrabold text-white leading-tight truncate">{student.name}</p>
+                <p className="text-xs text-emerald-100 mt-0.5">{student.class_name}</p>
+              </div>
+              <span className={`ml-auto shrink-0 rounded-full px-3 py-1 text-xs font-bold capitalize ring-1 ${
+                student.status === 'active'
+                  ? 'bg-white/20 text-white ring-white/30'
+                  : 'bg-rose-200/30 text-rose-100 ring-rose-300/30'
+              }`}>
+                {student.status}
+              </span>
+            </div>
+
+            {/* Fields */}
+            <div className="divide-y divide-emerald-100/60">
+              {([
+                {
+                  label: 'Full Name',
+                  value: student.name,
+                  icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z',
+                  color: 'text-emerald-600',
+                },
+                {
+                  label: 'Class',
+                  value: student.class_name,
+                  icon: 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253',
+                  color: 'text-blue-600',
+                },
+                {
+                  label: 'Gender',
+                  value: student.gender.charAt(0).toUpperCase() + student.gender.slice(1),
+                  icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z',
+                  color: 'text-violet-600',
+                },
+                student.parent_name ? {
+                  label: 'Parent / Guardian',
+                  value: student.parent_name,
+                  icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z',
+                  color: 'text-amber-600',
+                } : null,
+                student.address ? {
+                  label: 'Address',
+                  value: student.address,
+                  icon: 'M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0zM15 11a3 3 0 11-6 0 3 3 0 016 0z',
+                  color: 'text-rose-500',
+                } : null,
+                student.mobile_no ? {
+                  label: 'Mobile Number',
+                  value: student.mobile_no,
+                  icon: 'M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z',
+                  color: 'text-teal-600',
+                } : null,
+                {
+                  label: 'Account Status',
+                  value: student.status.charAt(0).toUpperCase() + student.status.slice(1),
+                  icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z',
+                  color: student.status === 'active' ? 'text-emerald-600' : 'text-rose-500',
+                },
+              ].filter(Boolean) as { label: string; value: string; icon: string; color: string }[]).map((field) => (
+                <div key={field.label} className="flex items-start gap-3 px-5 py-3.5">
+                  <div className={`mt-0.5 shrink-0 ${field.color}`}>
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={field.icon} />
+                    </svg>
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">{field.label}</p>
+                    <p className="mt-0.5 text-sm font-semibold text-slate-800 break-words">{field.value}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Quick stats row */}
+          <div className="grid grid-cols-3 gap-2">
+            <div className="rounded-2xl border border-cyan-100 bg-gradient-to-br from-cyan-50 to-blue-50/50 p-3 text-center">
+              <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">Attendance</p>
+              <p className={`mt-1 text-lg font-extrabold ${
+                percentage === null ? 'text-slate-400' : percentage >= 90 ? 'text-emerald-600' : percentage >= 75 ? 'text-amber-500' : 'text-rose-500'
+              }`}>{percentage !== null ? `${percentage}%` : '—'}</p>
+            </div>
+            <div className="rounded-2xl border border-violet-100 bg-gradient-to-br from-violet-50 to-indigo-50/50 p-3 text-center">
+              <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">Paid</p>
+              <p className="mt-1 text-lg font-extrabold text-emerald-600">{formatCurrency(totalPaid)}</p>
+            </div>
+            <div className="rounded-2xl border border-rose-100 bg-gradient-to-br from-rose-50 to-red-50/50 p-3 text-center">
+              <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">Due</p>
+              <p className="mt-1 text-lg font-extrabold text-rose-600">{formatCurrency(outstanding)}</p>
+            </div>
+          </div>
         </div>
       )}
 
