@@ -89,6 +89,23 @@ export default function Home() {
           <h2 className="mt-3 sm:mt-4 text-sm sm:text-lg font-semibold text-slate-900">Holidays</h2>
           <p className="mt-1 sm:mt-2 text-xs sm:text-sm leading-5 sm:leading-6 text-slate-600">Browse scheduled holidays and breaks for the coaching.</p>
         </Link>
+
+        <Link
+          href="/timetable"
+          className="card group block overflow-hidden border-violet-100/70 bg-gradient-to-br from-violet-50 via-white to-indigo-50 p-4 sm:p-5 transition-all hover:-translate-y-0.5 hover:border-violet-200"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl sm:rounded-2xl bg-violet-600 text-white shadow-lg shadow-violet-200/70">
+              <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <span className="rounded-full bg-white/80 px-3 py-1 text-xs font-medium text-violet-700">Schedule</span>
+          </div>
+          <h2 className="mt-3 sm:mt-4 text-sm sm:text-lg font-semibold text-slate-900">Timetable</h2>
+          <p className="mt-1 sm:mt-2 text-xs sm:text-sm leading-5 sm:leading-6 text-slate-600">View your class weekly schedule for morning and evening sessions.</p>
+        </Link>
       </section>
 
     </div>
