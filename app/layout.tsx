@@ -43,18 +43,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-screen">
         <AuthProvider>
           <PWAInstallProvider>
-          <ServiceWorkerRegistration />
-          <div className="app-shell">
-            <div className="app-surface">
-              <Navigation />
-              <main className="px-3 pb-6 pt-3 sm:px-6 sm:pb-8 sm:pt-6">{children}</main>
+            <ServiceWorkerRegistration />
+            <div className="app-shell">
+              <div className="app-frame">
+                <Navigation />
+                <div className="app-content">
+                  <main className="app-main">{children}</main>
+                  <footer className="pb-24 pt-5 text-center text-xs text-slate-500 sm:px-2 sm:pb-2 sm:pt-3 sm:text-sm">
+                    Amlan Coaching · Student Portal
+                  </footer>
+                </div>
+              </div>
             </div>
-            <footer className="pb-24 pt-5 text-center text-xs text-slate-500 sm:pb-2 sm:text-sm">
-              Amlan Coaching · Student Portal
-            </footer>
-          </div>
-          <MobileBottomNav />
-          <InstallPrompt />
+            <MobileBottomNav />
+            <InstallPrompt />
           </PWAInstallProvider>
         </AuthProvider>
       </body>

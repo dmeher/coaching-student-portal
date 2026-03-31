@@ -66,6 +66,41 @@ export default function Navigation() {
   const { canInstall, isIOS, install } = usePWAInstall()
   const currentPath = pathname
   const currentSection = links.find((link) => (link.href === '/' ? currentPath === '/' : currentPath.startsWith(link.href)))
+  const utilityLinks = student
+    ? [
+        {
+          href: '/notifications',
+          label: 'Notifications',
+          icon: (
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+            </svg>
+          ),
+        },
+        {
+          href: '/my-profile',
+          label: 'My Profile',
+          icon: (
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          ),
+        },
+      ]
+    : [
+        {
+          href: '/login',
+          label: 'Login',
+          icon: (
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+            </svg>
+          ),
+        },
+      ]
 
   function handleLogout() {
     logout()
@@ -74,7 +109,7 @@ export default function Navigation() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 border-b border-white/70 bg-white/80 backdrop-blur-xl">
+      <header className="sticky top-0 z-40 border-b border-white/70 bg-white/80 backdrop-blur-xl sm:hidden">
         <div className="flex items-center justify-between gap-4 px-4 py-3 sm:px-6">
           <Link href="/" className="flex min-w-0 items-center gap-3">
             <Image src="/logo/logo.png" alt="Amlan Coaching" width={38} height={38} className="rounded-2xl ring-1 ring-slate-200/70" priority />
@@ -83,86 +118,82 @@ export default function Navigation() {
               <p className="truncate text-xs text-slate-500">{currentSection?.label || 'Student Portal'}</p>
             </div>
           </Link>
+          <span className="rounded-full bg-cyan-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-700">
+            {currentSection?.label || 'Portal'}
+          </span>
+        </div>
+      </header>
 
-          <nav className="hidden items-center gap-1 sm:flex">
+      <aside className="app-surface sticky top-5 hidden self-start sm:flex sm:flex-col">
+        <div className="flex flex-col px-4 py-4">
+          <Link href="/" className="flex items-center gap-3 rounded-3xl border border-white/80 bg-white/80 px-4 py-3 shadow-[0_18px_40px_-32px_rgba(15,23,42,0.7)]">
+            <Image src="/logo/logo.png" alt="Amlan Coaching" width={40} height={40} className="rounded-2xl ring-1 ring-slate-200/70" priority />
+            <div className="min-w-0">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-cyan-700">Amlan Coaching</p>
+              <p className="truncate text-sm text-slate-500">Student Portal</p>
+            </div>
+          </Link>
+
+          {student && (
+            <div className="mt-4 rounded-[24px] border border-white/70 bg-white/85 px-4 py-3 shadow-[0_20px_45px_-34px_rgba(15,23,42,0.55)] backdrop-blur">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-400">Signed In</p>
+              <p className="mt-1.5 truncate text-sm font-semibold text-slate-900">{student.name}</p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                <span className="rounded-full bg-cyan-50 px-2.5 py-1 text-xs font-medium text-cyan-700">{student.class_name}</span>
+                <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">{student.status}</span>
+              </div>
+            </div>
+          )}
+
+          <nav className="mt-4 space-y-1.5">
             {links.map((link) => {
               const active = link.href === '/' ? currentPath === '/' : currentPath.startsWith(link.href)
               return (
                 <Link
-                  key={link.href}                  href={link.href}
-                  className={`flex items-center gap-1.5 rounded-2xl px-3 py-2 text-sm font-medium transition-colors ${
+                  key={link.href}
+                  href={link.href}
+                  className={`group flex items-center gap-3 rounded-2xl px-4 py-2.5 text-sm font-medium transition-all ${
                     active
-                      ? 'bg-cyan-50 text-cyan-700'
-                      : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                      ? 'bg-slate-900 text-white shadow-[0_18px_45px_-28px_rgba(15,23,42,0.75)]'
+                      : 'text-slate-600 hover:bg-white/90 hover:text-slate-900'
                   }`}
                 >
-                  {link.icon}
-                  {link.label}
+                  <span className={`${active ? 'text-cyan-300' : 'text-slate-400 group-hover:text-cyan-700'}`}>{link.icon}</span>
+                  <span>{link.label}</span>
                 </Link>
               )
             })}
-            {student ? (
-              <>
-                <Link
-                  href="/notifications"
-                  className={`flex items-center gap-1.5 rounded-2xl px-3 py-2 text-sm font-medium transition-colors ${
-                    currentPath.startsWith('/notifications')
-                      ? 'bg-cyan-50 text-cyan-700'
-                      : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-                  }`}
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                      d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                  </svg>
-                  Notifications
-                </Link>
-                <Link
-                  href="/my-profile"
-                  className={`flex items-center gap-1.5 rounded-2xl px-3 py-2 text-sm font-medium transition-colors ${
-                    currentPath.startsWith('/my-profile')
-                      ? 'bg-cyan-50 text-cyan-700'
-                      : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-                  }`}
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                      d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  My Profile
-                </Link>
-                <button
-                  onClick={handleLogout}
-                  className="flex items-center gap-1.5 rounded-2xl px-3 py-2 text-sm font-medium text-rose-600 transition-colors hover:bg-rose-50"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                      d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                  </svg>
-                  Logout
-                </button>
-              </>
-            ) : (
-              <Link
-                href="/login"
-                className={`flex items-center gap-1.5 rounded-2xl px-3 py-2 text-sm font-medium transition-colors ${
-                  currentPath.startsWith('/login')
-                    ? 'bg-cyan-50 text-cyan-700'
-                    : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-                }`}
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                    d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
-                </svg>
-                Login
-              </Link>
-            )}
+          </nav>
+
+          <div className="mt-5 border-t border-slate-200/70 pt-4">
+            <p className="px-1 text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-400">Account</p>
+            <div className="mt-2.5 space-y-1.5">
+              {utilityLinks.map((link) => {
+                const active = currentPath.startsWith(link.href)
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className={`flex items-center gap-3 rounded-2xl px-4 py-2.5 text-sm font-medium transition-all ${
+                      active
+                        ? 'bg-cyan-50 text-cyan-700'
+                        : 'text-slate-600 hover:bg-white/90 hover:text-slate-900'
+                    }`}
+                  >
+                    <span className={active ? 'text-cyan-700' : 'text-slate-400'}>{link.icon}</span>
+                    <span>{link.label}</span>
+                  </Link>
+                )
+              })}
+            </div>
+          </div>
+
+          <div className="space-y-2.5 pt-5">
             {canInstall && (
               <button
                 onClick={isIOS ? undefined : install}
                 title={isIOS ? 'Tap Share → Add to Home Screen in Safari' : 'Install app'}
-                className="flex items-center gap-1.5 rounded-2xl bg-blue-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
+                className="flex w-full items-center justify-center gap-2 rounded-2xl bg-cyan-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-cyan-700"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -171,9 +202,22 @@ export default function Navigation() {
                 {isIOS ? 'Add to Home' : 'Install App'}
               </button>
             )}
-          </nav>
+
+            {student && (
+              <button
+                onClick={handleLogout}
+                className="flex w-full items-center justify-center gap-2 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-2.5 text-sm font-medium text-rose-600 transition-colors hover:bg-rose-100"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+                Logout
+              </button>
+            )}
+          </div>
         </div>
-      </header>
+      </aside>
     </>
   )
 }

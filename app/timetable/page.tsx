@@ -84,25 +84,30 @@ export default function TimetablePage() {
 
   return (
     <div className="space-y-4 sm:space-y-6">
-      {/* Header */}
-      <section className="mobile-pane overflow-hidden px-4 py-4 sm:px-8 sm:py-8">
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-[0.28em] text-cyan-700">
+      <section className="mobile-pane overflow-hidden px-4 py-4 sm:px-6 sm:py-6">
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+          <div className="max-w-2xl">
+            <p className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.28em] text-cyan-700">
               Your Schedule
             </p>
-            <h1 className="mt-1 text-xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+            <h1 className="mt-2 text-xl font-bold tracking-tight text-slate-900 sm:text-4xl">
               Class {student?.class_name} Timetable
             </h1>
-            <p className="mt-1 text-xs text-slate-500 sm:text-sm">
+            <p className="mt-2 max-w-xl text-xs leading-6 text-slate-500 sm:text-sm">
               Weekly schedule — morning &amp; evening sessions
             </p>
           </div>
-          <div className="flex h-12 w-12 sm:h-16 sm:w-16 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-600 shadow-lg shadow-cyan-200/70">
-            <svg className="h-6 w-6 sm:h-8 sm:w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
+          <div className="grid grid-cols-2 gap-3 sm:w-[320px]">
+            <div className="rounded-2xl border border-cyan-100 bg-cyan-50/80 px-4 py-3">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-cyan-700">Sessions</p>
+              <p className="mt-1 text-2xl font-semibold text-slate-900">2</p>
+              <p className="text-xs text-slate-500">Morning and evening</p>
+            </div>
+            <div className="rounded-2xl border border-slate-200 bg-white/80 px-4 py-3">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-500">Coverage</p>
+              <p className="mt-1 text-2xl font-semibold text-slate-900">7</p>
+              <p className="text-xs text-slate-500">Days in view</p>
+            </div>
           </div>
         </div>
       </section>

@@ -58,12 +58,21 @@ body::before {
     @apply bg-gray-100 text-gray-600;
   }
   .app-shell {
-    @apply mx-auto min-h-screen w-full max-w-md px-3 pb-20 pt-3 sm:max-w-5xl sm:px-4 sm:pb-10 sm:pt-6;
+    @apply mx-auto min-h-screen w-full max-w-md px-3 pb-20 pt-3 sm:max-w-7xl sm:px-5 sm:pb-8 sm:pt-5;
+  }
+  .app-frame {
+    @apply relative sm:grid sm:grid-cols-[272px_minmax(0,1fr)] sm:gap-6;
   }
   .app-surface {
     @apply overflow-hidden rounded-2xl border shadow-[0_24px_60px_-32px_rgba(15,23,42,0.45)] backdrop-blur-sm;
     border-color: rgba(255, 255, 255, 0.7);
     background-color: rgba(255, 255, 255, 0.7);
+  }
+  .app-content {
+    @apply min-w-0;
+  }
+  .app-main {
+    @apply px-3 pb-6 pt-3 sm:px-0 sm:pb-6 sm:pt-0;
   }
   .mobile-pane {
     @apply rounded-2xl border shadow-[0_20px_45px_-30px_rgba(15,23,42,0.5)] backdrop-blur;
