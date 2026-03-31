@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabase } from '@/lib/supabase'
+import { createStudentSessionToken } from '@/lib/studentAuth'
 
 export const dynamic = 'force-dynamic'
 
@@ -46,6 +47,7 @@ export async function POST(request: NextRequest) {
     }
 
     const s = students[0] as any
+    const sessionToken = createStudentSessionToken(s.id, s.teacher_id || null)
     // Return student info — mobile_no is intentionally excluded from the response
     return NextResponse.json(
       {
@@ -59,6 +61,7 @@ export async function POST(request: NextRequest) {
           mobile_no: s.mobile_no || null,
           status: s.status,
           teacher_id: s.teacher_id || null,
+          session_token: sessionToken,
         },
       },
       { status: 200 }

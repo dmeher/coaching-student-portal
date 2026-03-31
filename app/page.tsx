@@ -20,6 +20,7 @@ export default function Home() {
               <span className="rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-medium text-emerald-700 sm:text-xs">Teacher profiles</span>
               <span className="rounded-full bg-rose-50 px-3 py-1 text-[11px] font-medium text-rose-600 sm:text-xs">Holiday updates</span>
               <span className="rounded-full bg-violet-50 px-3 py-1 text-[11px] font-medium text-violet-700 sm:text-xs">Weekly timetable</span>
+              <span className="rounded-full bg-amber-50 px-3 py-1 text-[11px] font-medium text-amber-700 sm:text-xs">Student awards</span>
             </div>
           </div>
 
@@ -96,6 +97,23 @@ export default function Home() {
           </div>
           <h2 className="mt-3 sm:mt-4 text-sm sm:text-lg font-semibold text-slate-900">Timetable</h2>
           <p className="mt-1 sm:mt-2 text-[11px] sm:text-sm leading-5 sm:leading-6 text-slate-600">View your class weekly schedule for morning and evening sessions.</p>
+        </Link>
+
+        <Link
+          href="/recognition"
+          className="card group block overflow-hidden border-amber-100/70 bg-gradient-to-br from-amber-50 via-white to-yellow-50 p-3 sm:p-5 transition-all hover:-translate-y-0.5 hover:border-amber-200"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl sm:rounded-2xl bg-amber-500 text-white shadow-lg shadow-amber-200/70">
+              <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                  d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.959a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.367 2.447a1 1 0 00-.364 1.118l1.287 3.959c.3.921-.755 1.688-1.538 1.118l-3.367-2.447a1 1 0 00-1.176 0l-3.367 2.447c-.783.57-1.838-.197-1.539-1.118l1.287-3.959a1 1 0 00-.363-1.118L2.98 9.386c-.783-.57-.38-1.81.588-1.81H7.73a1 1 0 00.951-.69l1.368-3.959z" />
+              </svg>
+            </div>
+            <span className="rounded-full bg-white/80 px-2.5 py-1 text-[10px] font-medium text-amber-700 sm:px-3 sm:text-xs">Awards</span>
+          </div>
+          <h2 className="mt-3 sm:mt-4 text-sm sm:text-lg font-semibold text-slate-900">Recognition</h2>
+          <p className="mt-1 sm:mt-2 text-[11px] sm:text-sm leading-5 sm:leading-6 text-slate-600">See monthly student awards and recognitions across the coaching.</p>
         </Link>
       </section>
 

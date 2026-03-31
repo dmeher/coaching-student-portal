@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/authContext'
-import type { StudentAttendanceSummary, FeeEntry } from '@/lib/types'
+import type { StudentAttendanceSummary, FeeEntry, StudentPerformance } from '@/lib/types'
 
 function formatCurrency(amount: number) {
   return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0 }).format(amount)
@@ -28,13 +28,16 @@ export default function MyProfilePage() {
   const [error, setError] = useState('')
   const [attendanceData, setAttendanceData] = useState<StudentAttendanceSummary | null>(null)
   const [selectedDay, setSelectedDay] = useState<{ date: string; sessions: Array<{ status: 'present' | 'absent' | 'unknown'; session: string }> } | null>(null)
-  const [activeSection, setActiveSection] = useState<'overview' | 'attendance' | 'fees' | 'details'>('overview')
+  const [activeSection, setActiveSection] = useState<'overview' | 'attendance' | 'performance' | 'fees' | 'details'>('overview')
 
   // Fees & Payments state
   const [fees, setFees] = useState<FeeEntry[]>([])
   const [feesLoading, setFeesLoading] = useState(false)
   const [feesError, setFeesError] = useState('')
   const [selectedFee, setSelectedFee] = useState<FeeEntry | null>(null)
+  const [performance, setPerformance] = useState<StudentPerformance[]>([])
+  const [performanceLoading, setPerformanceLoading] = useState(false)
+  const [performanceError, setPerformanceError] = useState('')
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -66,6 +69,37 @@ export default function MyProfilePage() {
   useEffect(() => {
     if (student) fetchFees()
   }, [fetchFees])
+
+  const fetchPerformance = useCallback(async () => {
+    if (!student) return
+
+    setPerformanceLoading(true)
+    setPerformanceError('')
+
+    try {
+      const params = new URLSearchParams({ month })
+      const res = await fetch(`/api/student-performance?${params.toString()}`, {
+        headers: { 'x-student-session': student.session_token },
+      })
+      const data = await res.json()
+
+      if (!res.ok) {
+        setPerformanceError(data.message || 'Failed to load performance.')
+        setPerformance([])
+      } else {
+        setPerformance(data.performance || [])
+      }
+    } catch {
+      setPerformanceError('Network error while loading performance.')
+      setPerformance([])
+    } finally {
+      setPerformanceLoading(false)
+    }
+  }, [month, student])
+
+  useEffect(() => {
+    if (student) fetchPerformance()
+  }, [fetchPerformance])
 
   const fetchAttendance = useCallback(async () => {
     if (!student) return
@@ -135,6 +169,12 @@ export default function MyProfilePage() {
   const totalPaid = fees.reduce((s, f) => s + f.payments.reduce((ps, p) => ps + p.amount, 0), 0)
   const outstanding = Math.max(0, totalBilled - totalPaid)
   const pendingFeesCount = fees.filter((f) => f.status !== 'paid').length
+  const averagePerformance = performance.length > 0
+    ? Math.round(performance.reduce((sum, record) => sum + record.percentage, 0) / performance.length)
+    : null
+  const topPerformance = performance.length > 0
+    ? performance.reduce((best, record) => (record.percentage > best.percentage ? record : best), performance[0])
+    : null
 
   const TAB_ITEMS = [
     {
@@ -164,6 +204,16 @@ export default function MyProfilePage() {
         <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
             d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+        </svg>
+      ),
+    },
+    {
+      id: 'performance' as const,
+      label: 'Performance',
+      icon: (
+        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+            d="M11 3a1 1 0 011 1v8.586l2.293-2.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L10 12.586V4a1 1 0 011-1zm-7 14a1 1 0 011-1h14a1 1 0 110 2H5a1 1 0 01-1-1z" />
         </svg>
       ),
     },
@@ -353,6 +403,49 @@ export default function MyProfilePage() {
             </div>
           </div>
 
+          <div
+            className="rounded-2xl border border-amber-100 bg-gradient-to-br from-amber-50 to-yellow-50/60 p-4 cursor-pointer hover:shadow-md transition"
+            onClick={() => setActiveSection('performance')}
+          >
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-amber-500/15 text-amber-600">
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                      d="M11 3a1 1 0 011 1v8.586l2.293-2.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L10 12.586V4a1 1 0 011-1zm-7 14a1 1 0 011-1h14a1 1 0 110 2H5a1 1 0 01-1-1z" />
+                  </svg>
+                </div>
+                <span className="text-sm font-bold text-slate-800">Performance</span>
+              </div>
+              <div className="flex items-center gap-1 text-xs text-amber-600 font-semibold">
+                View details
+                <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+            </div>
+            {performanceLoading ? (
+              <div className="h-10 animate-pulse rounded-xl bg-amber-100/60" />
+            ) : performance.length === 0 ? (
+              <p className="text-xs text-slate-400">No performance records for this month.</p>
+            ) : (
+              <div className="grid grid-cols-3 gap-2">
+                <div className="rounded-xl bg-white/70 p-2.5 text-center">
+                  <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">Exams</p>
+                  <p className="mt-0.5 text-lg font-extrabold text-slate-700">{performance.length}</p>
+                </div>
+                <div className="rounded-xl bg-white/70 p-2.5 text-center">
+                  <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">Average</p>
+                  <p className="mt-0.5 text-lg font-extrabold text-amber-600">{averagePerformance !== null ? `${averagePerformance}%` : '—'}</p>
+                </div>
+                <div className="rounded-xl bg-white/70 p-2.5 text-center">
+                  <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">Top Score</p>
+                  <p className="mt-0.5 text-lg font-extrabold text-emerald-600">{topPerformance ? `${Math.round(topPerformance.percentage)}%` : '—'}</p>
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* Fees snapshot */}
           <div
             className="rounded-2xl border border-violet-100 bg-gradient-to-br from-violet-50 to-indigo-50/60 p-4 cursor-pointer hover:shadow-md transition"
@@ -531,6 +624,101 @@ export default function MyProfilePage() {
                 <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-slate-200" /> Not marked</span>
                 <span className="text-slate-400">☀️=Morning · 🌙=Evening</span>
               </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {activeSection === 'performance' && (
+        <div className="space-y-3 sm:space-y-4">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <h2 className="text-sm sm:text-base font-bold text-slate-900">My Performance</h2>
+              <p className="text-xs text-slate-500">Your exam records for the selected month</p>
+            </div>
+            <input
+              type="month"
+              value={month}
+              onChange={(e) => setMonth(e.target.value)}
+              className="rounded-2xl border border-slate-200 bg-white px-2.5 py-1.5 text-xs sm:text-sm text-slate-700 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-100"
+            />
+          </div>
+
+          {performance.length > 0 && !performanceLoading && !performanceError && (
+            <div className="grid grid-cols-3 gap-2 sm:gap-3">
+              <div className="mobile-stat border-2 border-amber-200 p-2 sm:p-4">
+                <p className="text-[10px] uppercase tracking-[0.18em] text-slate-400">Exams</p>
+                <p className="mt-1 sm:mt-2 text-base sm:text-xl font-bold text-slate-700">{performance.length}</p>
+              </div>
+              <div className="mobile-stat border-2 border-emerald-200 p-2 sm:p-4">
+                <p className="text-[10px] uppercase tracking-[0.18em] text-slate-400">Average</p>
+                <p className="mt-1 sm:mt-2 text-base sm:text-xl font-bold text-emerald-600">{averagePerformance !== null ? `${averagePerformance}%` : '—'}</p>
+              </div>
+              <div className="mobile-stat border-2 border-cyan-200 p-2 sm:p-4">
+                <p className="text-[10px] uppercase tracking-[0.18em] text-slate-400">Best</p>
+                <p className="mt-1 sm:mt-2 text-base sm:text-xl font-bold text-cyan-700">{topPerformance ? `${Math.round(topPerformance.percentage)}%` : '—'}</p>
+              </div>
+            </div>
+          )}
+
+          {performanceLoading && (
+            <div className="flex items-center justify-center py-8">
+              <div className="h-7 w-7 animate-spin rounded-full border-4 border-amber-200 border-t-amber-500" />
+            </div>
+          )}
+
+          {!performanceLoading && performanceError && (
+            <div className="flex items-start gap-2 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+              <svg className="mt-0.5 h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              {performanceError}
+            </div>
+          )}
+
+          {!performanceLoading && !performanceError && performance.length === 0 && (
+            <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-8 text-center text-sm text-slate-400">
+              No performance records found for this month.
+            </div>
+          )}
+
+          {!performanceLoading && !performanceError && performance.length > 0 && (
+            <div className="flex flex-col gap-2">
+              {performance.map((record) => (
+                <article key={record.id} className="rounded-2xl border border-amber-100 bg-gradient-to-br from-amber-50/80 to-yellow-50/60 p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="text-sm font-bold text-slate-900">{record.exam_name}</p>
+                      <p className="mt-0.5 text-xs text-slate-500">{new Date(`${record.month_key}-01`).toLocaleString('default', { month: 'long', year: 'numeric' })}</p>
+                    </div>
+                    <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
+                      record.percentage >= 90 ? 'bg-emerald-100 text-emerald-700'
+                      : record.percentage >= 75 ? 'bg-amber-100 text-amber-700'
+                      : 'bg-rose-100 text-rose-700'
+                    }`}>
+                      {Math.round(record.percentage)}%
+                    </span>
+                  </div>
+
+                  <div className="mt-3 grid grid-cols-3 gap-2">
+                    <div className="rounded-xl bg-white/80 p-2.5">
+                      <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">Marks</p>
+                      <p className="mt-1 text-sm font-bold text-slate-800">{record.marks_obtained}/{record.max_marks}</p>
+                    </div>
+                    <div className="rounded-xl bg-white/80 p-2.5">
+                      <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">Rating</p>
+                      <p className="mt-1 text-sm font-bold text-amber-700">{`${'★'.repeat(record.rating)}${'☆'.repeat(5 - record.rating)}`}</p>
+                    </div>
+                    <div className="rounded-xl bg-white/80 p-2.5">
+                      <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">Recorded</p>
+                      <p className="mt-1 text-sm font-bold text-slate-700">{formatDate(record.created_at.slice(0, 10))}</p>
+                    </div>
+                  </div>
+
+                  {record.remarks && <p className="mt-3 text-xs leading-5 text-slate-600">{record.remarks}</p>}
+                </article>
+              ))}
             </div>
           )}
         </div>

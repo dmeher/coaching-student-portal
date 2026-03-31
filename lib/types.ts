@@ -64,3 +64,29 @@ export interface StudentAttendanceSummary {
     session?: string
   }[]
 }
+
+export interface StudentAwardPublic {
+  id: string
+  student_id: string
+  student_name: string
+  class_name: string
+  month_key: string
+  skill_category: string
+  award_title: string
+  remarks?: string | null
+  created_at: string
+}
+
+export interface StudentPerformance {
+  id: string
+  student_id: string
+  month_key: string
+  exam_name: string
+  max_marks: number
+  marks_obtained: number
+  percentage: number
+  rating: number
+  remarks?: string | null
+  created_at: string
+  updated_at: string
+}

@@ -12,6 +12,7 @@ export interface StudentSession {
   mobile_no: string | null
   status: 'active' | 'inactive'
   teacher_id?: string | null
+  session_token: string
 }
 
 interface AuthContextType {
@@ -38,7 +39,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const stored = localStorage.getItem(SESSION_KEY)
       if (stored) {
-        setStudent(JSON.parse(stored) as StudentSession)
+        const parsed = JSON.parse(stored) as Partial<StudentSession>
+        if (typeof parsed.session_token === 'string' && parsed.session_token.trim()) {
+          setStudent(parsed as StudentSession)
+        } else {
+          localStorage.removeItem(SESSION_KEY)
+        }
       }
     } catch {
       // malformed data — ignore
