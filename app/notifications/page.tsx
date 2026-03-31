@@ -26,13 +26,14 @@ function timeAgo(dateStr: string): string {
 }
 
 export default function NotificationsPage() {
-  const { student } = useAuth()
+  const { student, isInitialized } = useAuth()
   const router = useRouter()
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
   useEffect(() => {
+    if (!isInitialized) return
     if (!student) {
       router.replace('/')
       return
@@ -49,7 +50,7 @@ export default function NotificationsPage() {
       })
       .catch(() => setError('Network error. Please try again.'))
       .finally(() => setLoading(false))
-  }, [student, router])
+  }, [student, isInitialized, router])
 
   if (!student) return null
 

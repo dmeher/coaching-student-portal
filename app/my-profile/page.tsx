@@ -21,7 +21,7 @@ function getCurrentMonthValue() {
 
 
 export default function MyProfilePage() {
-  const { student, logout } = useAuth()
+  const { student, isInitialized, logout } = useAuth()
   const router = useRouter()
   const [month, setMonth] = useState(getCurrentMonthValue)
   const [loading, setLoading] = useState(false)
@@ -38,16 +38,11 @@ export default function MyProfilePage() {
 
   // Redirect to login if not authenticated
   useEffect(() => {
-    if (student === null) {
-      // Wait a tick so AuthProvider can hydrate from localStorage first
-      const timer = setTimeout(() => {
-        if (!localStorage.getItem('student_portal_session')) {
-          router.push('/login')
-        }
-      }, 150)
-      return () => clearTimeout(timer)
+    if (!isInitialized) return
+    if (!student) {
+      router.push('/login')
     }
-  }, [student, router])
+  }, [isInitialized, student, router])
 
   const fetchFees = useCallback(async () => {
     if (!student) return

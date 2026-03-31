@@ -35,13 +35,13 @@ type DaySchedule = Record<string, Record<string, string>>
 
 export default function TimetablePage() {
   const router = useRouter()
-  const { student } = useAuth()
+  const { student, isInitialized } = useAuth()
   const [timetable, setTimetable] = useState<DaySchedule | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    if (student === undefined) return // auth context still initializing
+    if (!isInitialized) return // wait for localStorage to load
 
     if (!student) {
       router.replace('/login')
@@ -64,7 +64,7 @@ export default function TimetablePage() {
       })
       .catch(() => setError('Could not load timetable.'))
       .finally(() => setLoading(false))
-  }, [student, router])
+  }, [student, isInitialized, router])
 
   if (loading) {
     return (

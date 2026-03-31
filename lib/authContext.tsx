@@ -16,12 +16,14 @@ export interface StudentSession {
 
 interface AuthContextType {
   student: StudentSession | null
+  isInitialized: boolean
   login: (student: StudentSession) => void
   logout: () => void
 }
 
 const AuthContext = createContext<AuthContextType>({
   student: null,
+  isInitialized: false,
   login: () => {},
   logout: () => {},
 })
@@ -30,6 +32,7 @@ const SESSION_KEY = 'student_portal_session'
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [student, setStudent] = useState<StudentSession | null>(null)
+  const [isInitialized, setIsInitialized] = useState(false)
 
   useEffect(() => {
     try {
@@ -39,6 +42,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     } catch {
       // malformed data — ignore
+    } finally {
+      setIsInitialized(true)
     }
   }, [])
 
@@ -53,7 +58,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ student, login, logout }}>
+    <AuthContext.Provider value={{ student, isInitialized, login, logout }}>
       {children}
     </AuthContext.Provider>
   )
